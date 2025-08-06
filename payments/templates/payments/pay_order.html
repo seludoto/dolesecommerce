@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Pay for Order #{{ order.id }}</h1>
+  <p>Total: ${{ order.items.all|map:'subtotal'|sum }}</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="phone_number" class="form-label">M-Pesa Phone Number</label>
+      <input type="text" name="phone_number" id="phone_number" class="form-control" required placeholder="e.g. 2557XXXXXXXX">
+    </div>
+    <button type="submit" class="btn btn-success">Pay with M-Pesa</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Your Cart</h1>
+  <ul>
+    {% for item in cart_items %}
+      <li>{{ item.product.name }} (x{{ item.quantity }}) - ${{ item.subtotal }}
+        <a href="{% url 'orders:cart_remove' item.product.pk %}">Remove</a>
+      </li>
+    {% empty %}
+      <li>Your cart is empty.</li>
+    {% endfor %}
+  </ul>
+  <p><strong>Total:</strong> ${{ total }}</p>
+  {% if cart_items %}
+    <a href="{% url 'orders:cart_checkout' %}" class="btn btn-success">Checkout</a>
+  {% endif %}
+{% endblock %}

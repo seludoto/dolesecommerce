@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <div class="container py-5">
+    <div class="card mx-auto" style="max-width:420px;">
+      <div class="card-body">
+        <h3 class="card-title mb-4 text-center">User Profile</h3>
+        <p><strong>Username:</strong> {{ profile.user.username }}</p>
+        <p><strong>Email:</strong> {{ profile.user.email }}</p>
+        <p><strong>Phone:</strong> {{ profile.phone }}</p>
+        <p><strong>Address:</strong> {{ profile.address }}</p>
+        {% if profile.avatar %}
+          <img src="{{ profile.avatar.url }}" alt="Avatar" width="120" height="120" class="rounded mb-2">
+        {% else %}
+          <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar" width="120" height="120" class="rounded mb-2">
+        {% endif %}
+        <p><strong>Joined:</strong> {{ profile.created_at }}</p>
+        <div class="d-grid gap-2 mt-4">
+          <a href="/users/profile/edit/" class="btn" style="background:#1de9b6; color:#fff; font-weight:600;">Edit Profile</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

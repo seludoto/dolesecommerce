@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="d-flex justify-content-center align-items-center min-vh-100" style="background:rgba(10,37,64,0.08);">
+  <div class="card shadow-lg p-4" style="max-width:420px; width:100%; border-radius:18px;">
+    <div class="text-center mb-3">
+      <img src="{% static 'images/paper-boat.png' %}" alt="Paper Boat Logo" style="height:60px;">
+      <h4 class="mt-2">Login to Your Account</h4>
+    </div>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="mb-3">
+          <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+          {% for error in field.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+      <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn" style="background:#1de9b6; color:#fff; font-weight:600;">LOGIN</button>
+        <a href="{% url 'users:register' %}" class="btn btn-outline" style="border:2px solid #1de9b6; color:#1de9b6; background:#fff; font-weight:600;">GO TO SIGN UP</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}dolesecommerce Site{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0a2540; min-height: 60px;">
+      <div class="container-fluid px-3">
+        <!-- Left: Logo & Delivery -->
+        <a class="navbar-brand fw-bold d-flex align-items-center me-3" href="/">
+          <img src="{% static 'images/logo.png' %}" alt="Dolese Logo" style="height:36px; width:auto;">
+        </a>
+        <div class="d-none d-lg-flex flex-column justify-content-center align-items-start me-4" style="color:#fff; font-size:0.85rem;">
+          <span style="color:#ccc;">Deliver to</span>
+          <span class="fw-bold">any region of Tanzania</span>
+        </div>
+        <!-- Center: Search -->
+        <form class="d-flex flex-grow-1 mx-2" action="/products/" method="get" style="max-width:700px;">
+          <div class="input-group">
+            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:4px 0 0 4px;">All</button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">All</a></li>
+              <li><a class="dropdown-item" href="#">Electronics</a></li>
+              <li><a class="dropdown-item" href="#">Phones</a></li>
+            </ul>
+            <input class="form-control" type="search" name="q" placeholder="Search products..." aria-label="Search">
+            <button class="btn" type="submit" style="background:#1de9b6; color:#0a2540; border-radius:0 4px 4px 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.85-3.85zm-5.242 1.398a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+        <!-- Right: Language, Account, Orders, Cart -->
+        <ul class="navbar-nav flex-row align-items-center ms-auto">
+          <li class="nav-item mx-2">
+            <a class="nav-link text-white" href="#">EN</a>
+          </li>
+          <li class="nav-item dropdown mx-2">
+            <a class="nav-link text-white dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span style="font-size:0.85rem; color:#ccc;">Hello, sign in</span><br>
+              <span class="fw-bold">Account & Lists</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+              {% if request.user.is_authenticated %}
+                <li><a class="dropdown-item" href="/users/profile/">Profile</a></li>
+                <li><a class="dropdown-item" href="/users/logout/">Logout</a></li>
+              {% else %}
+                <li><a class="dropdown-item" href="/users/login/">Login</a></li>
+                <li><a class="dropdown-item" href="/users/register/">Register</a></li>
+              {% endif %}
+            </ul>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link text-white text-center" href="/orders/">
+              <span style="font-size:0.85rem; color:#ccc;">Returns</span><br>
+              <span class="fw-bold">& Orders</span>
+            </a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link text-white d-flex align-items-center" href="/orders/cart/">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#1de9b6" class="bi bi-cart" viewBox="0 0 16 16">
+                <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 14H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.102 6l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 4 0 2 2 0 0 0-4 0z"/>
+              </svg>
+              <span class="fw-bold ms-1">Cart</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Secondary Menu Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #163d56; min-height: 40px;">
+      <div class="container-fluid px-3">
+        <button class="btn btn-outline-light me-2" type="button" style="border:none;">
+          <span style="font-size:1.2rem;">&#9776;</span> <span class="ms-1">All</span>
+        </button>
+        <ul class="navbar-nav flex-row">
+          <li class="nav-item mx-2"><a class="nav-link text-white" href="{% url 'core:deals' %}">Today’s Deals</a></li>
+          <li class="nav-item mx-2"><a class="nav-link text-white" href="{% url 'core:registry' %}">Registry</a></li>
+          <li class="nav-item mx-2"><a class="nav-link text-white" href="{% url 'core:customer_service' %}">Customer Service</a></li>
+          <!-- <li class="nav-item mx-2"><a class="nav-link text-white" href="#">Gift Cards</a></li> -->
+        </ul>
+      </div>
+    </nav>
+    <div class="container min-vh-75 py-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Sign-Up Modal -->
+    <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:18px; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+          <div class="modal-header border-0 flex-column align-items-center">
+            <img src="{% static 'images/paper-boat.png' %}" alt="Paper Boat Logo" style="height:60px; margin-bottom:10px;">
+            <h5 class="modal-title w-100 text-center" id="signupModalLabel">Sign Up – Enter details to sign up</h5>
+          </div>
+          <form method="post" action="/users/register/" class="px-4 pb-4">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="firstName" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="firstName" name="first_name" required>
+            </div>
+            <div class="mb-3">
+              <label for="lastName" class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="lastName" name="last_name" required>
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email Address</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+              <label for="country" class="form-label">Country</label>
+              <div class="input-group">
+                <span class="input-group-text" id="countryFlag" style="background:transparent; border:none;">
+                  <img src="{% static 'images/flags/tz.png' %}" alt="TZ" style="height:20px;">
+                </span>
+                <select class="form-select" id="country" name="country" required>
+                  <option value="TZ">Tanzania</option>
+                  <option value="KE">Kenya</option>
+                  <option value="UG">Uganda</option>
+                  <option value="RW">Rwanda</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="phone" class="form-label">Phone Number</label>
+              <input type="number" class="form-control" id="phone" name="phone" required>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" value="1" id="terms" name="terms" required>
+              <label class="form-check-label" for="terms">
+                I accept dolesecomerce’s <a href="/terms/" class="btn btn-link p-0 m-0" style="color:#1de9b6; text-decoration:underline; font-weight:600;">Terms & Conditions</a> concerning this application
+              </label>
+            </div>
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn" style="background:#1de9b6; color:#fff; font-weight:600;">SIGN UP</button>
+              <a href="/users/login/" class="btn btn-outline" style="border:2px solid #1de9b6; color:#1de9b6; background:#fff; font-weight:600;">GO TO LOGIN</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Optional: Automatically show modal for demo
+      // var signupModal = new bootstrap.Modal(document.getElementById('signupModal'));
+      // signupModal.show();
+    </script>
+    <footer class="text-white text-center py-3 mt-5" style="background-color: #0a2540;">
+        <div class="container">
+            <small>&copy; {{ now|default:2025 }} dolesecommerce. All rights reserved.</small>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Live Chat Widget (Tawk.to example) -->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/your_property_id/1xxxxxxx'; // Replace with your Tawk.to property ID
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+</body>
+</html>

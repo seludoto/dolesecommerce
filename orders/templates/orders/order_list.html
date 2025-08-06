@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>My Orders</h1>
+  <ul>
+    {% for order in orders %}
+      <li><a href="{% url 'orders:order_detail' order.pk %}">Order #{{ order.id }}</a> - {{ order.created_at }} - {% if order.is_paid %}Paid{% else %}Unpaid{% endif %}</li>
+    {% empty %}
+      <li>No orders found.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

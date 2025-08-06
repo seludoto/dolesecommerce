@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row align-items-center mb-5">
+  <div class="col-md-7">
+    <h1 class="display-4 fw-bold">Welcome to dolesecommerce</h1>
+    <p class="lead">Discover the best products, pay with M-Pesa or Pi Coin, and enjoy a seamless shopping experience.</p>
+    <a href="/products/" class="btn btn-lg btn-success me-2">Shop Now</a>
+    {% if not request.user.is_authenticated %}
+      <a href="/users/register/" class="btn btn-outline-light btn-lg">Register</a>
+    {% endif %}
+  </div>
+  <div class="col-md-5 text-center">
+    <img src="https://images.unsplash.com/photo-1515168833906-d2a3b82b1a48?auto=format&fit=crop&w=400&q=80" class="img-fluid rounded shadow" alt="Shopping">
+  </div>
+</div>
+
+<h2 class="mb-4">Featured Products</h2>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {% for product in products|slice:":3" %}
+    <div class="col">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ product.name }}</h5>
+          <p class="card-text">{{ product.description|truncatechars:80 }}</p>
+        </div>
+        <div class="card-footer bg-white border-0">
+          <a href="/products/{{ product.pk }}/" class="btn btn-primary">View</a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col"><div class="alert alert-info">No products available yet.</div></div>
+  {% endfor %}
+</div>
+{% endblock %}

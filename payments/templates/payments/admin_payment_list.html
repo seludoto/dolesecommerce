@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>All Payments (Admin)</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>User</th>
+        <th>Amount</th>
+        <th>Method</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for payment in payments %}
+        <tr>
+          <td>#{{ payment.order.id }}</td>
+          <td>{{ payment.order.user.username }}</td>
+          <td>${{ payment.amount }}</td>
+          <td>{{ payment.payment_method|title }}</td>
+          <td>{{ payment.status|title }}</td>
+          <td>{{ payment.created_at }}</td>
+          <td>
+            {% if payment.payment_method == 'pi_coin' and payment.status != 'completed' %}
+              <a href="{% url 'payments:confirm_pi_payment' payment.pk %}" class="btn btn-sm btn-warning">Confirm Pi</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7">No payments found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

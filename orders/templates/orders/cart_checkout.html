@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Checkout</h1>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="shipping_address" class="form-label">Shipping Address</label>
+      <textarea name="shipping_address" id="shipping_address" class="form-control" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Place Order</button>
+  </form>
+{% endblock %}

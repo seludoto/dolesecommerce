@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4 text-center">Customer Service & Support</h2>
+  <div class="row mb-5">
+    <div class="col-md-8 mx-auto">
+      <!-- 1. Help Center / FAQ -->
+      <section class="mb-4">
+        <h4>Help Center / FAQ</h4>
+        <form class="mb-3">
+          <input type="search" class="form-control" placeholder="Search help topics...">
+        </form>
+        <ul>
+          <li><strong>Payments:</strong> How do I pay? What payment methods are accepted?</li>
+          <li><strong>Shipping:</strong> How long does delivery take? How do I track my order?</li>
+          <li><strong>Returns:</strong> What is the return policy? How do I return an item?</li>
+          <li><strong>Accounts:</strong> How do I reset my password? How do I update my profile?</li>
+        </ul>
+      </section>
+
+      <!-- 2. Contact Options -->
+      <section class="mb-4">
+        <h4>Contact Options</h4>
+        <ul>
+          <li><a href="#" class="btn btn-sm btn-success mb-1">Live Chat (Coming Soon)</a></li>
+          <li>Email: <a href="mailto:support@dolesecommerce.com">support@dolesecommerce.com</a></li>
+          <li>Phone/WhatsApp: <a href="tel:+255123456789">+255 123 456 789</a></li>
+          <li>Support Hours: Mon-Fri, 8am-8pm</li>
+        </ul>
+      </section>
+
+      <!-- 3. Order & Shipping Support -->
+      <section class="mb-4">
+        <h4>Order & Shipping Support</h4>
+        <ul>
+          <li><a href="/orders/">Track Order</a></li>
+          <li>Modify or Cancel Order (Contact support)</li>
+          <li>Shipping status and delivery time info</li>
+        </ul>
+      </section>
+
+      <!-- 4. Returns & Refunds -->
+      <section class="mb-4">
+        <h4>Returns & Refunds</h4>
+        <ul>
+          <li><a href="/terms/">Return Policy</a></li>
+          <li>How to return an item (Contact support)</li>
+          <li>Refund timelines (Contact support)</li>
+        </ul>
+      </section>
+
+      <!-- 5. Account Assistance -->
+      <section class="mb-4">
+        <h4>Account Assistance</h4>
+        <ul>
+          <li><a href="/users/login/">Reset Password</a></li>
+          <li><a href="/users/profile/edit/">Update Profile or Payment Info</a></li>
+          <li>Manage notifications (Coming Soon)</li>
+        </ul>
+      </section>
+
+      <!-- 6. Product Support -->
+      <section class="mb-4">
+        <h4>Product Support</h4>
+        <ul>
+          <li>Warranty or repair info (Contact support)</li>
+          <li>Product guides/manuals (Coming Soon)</li>
+          <li>Report product issues (Contact support)</li>
+        </ul>
+      </section>
+
+      <!-- 7. Feedback / Suggestions -->
+      <section class="mb-4">
+        <h4>Feedback / Suggestions</h4>
+        <form>
+          <div class="mb-2">
+            <textarea class="form-control" rows="3" placeholder="Share your feedback or suggestions..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </section>
+
+      <!-- Optional: Community Forum / Support Bot -->
+      <section class="mb-4">
+        <h4>Community Forum & Support Bot</h4>
+        <p>Coming soon: AI-powered support and community forum for user-to-user help.</p>
+        <div>
+          <label for="langSelect" class="form-label">Language/Region:</label>
+          <select id="langSelect" class="form-select" style="max-width:200px;">
+            <option value="en">English (Tanzania)</option>
+            <option value="sw">Swahili</option>
+          </select>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}
