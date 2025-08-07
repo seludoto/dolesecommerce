@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Product, Category, Brand
+from .models import Product, Category, Brand, ProductImage
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+    fields = ('image', 'uploaded_at')
+    readonly_fields = ('uploaded_at',)
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -12,6 +17,7 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('name', 'description', 'price', 'category', 'brand', 'stock', 'is_active', 'image', 'image_tag')
         }),
     )
+    inlines = [ProductImageInline]
 
     def image_tag(self, obj):
         if obj.image:
