@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Flash Sales - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="text-center">
+                <h1 class="display-4 text-danger mb-2">
+                    <i class="fas fa-bolt me-2"></i>Flash Sales
+                </h1>
+                <p class="lead text-muted">Limited time offers with incredible discounts!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Flash Sales -->
+    {% if active_sales %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <h3 class="mb-4">
+                    <i class="fas fa-fire text-danger me-2"></i>Live Now - Don't Miss Out!
+                </h3>
+                {% for sale in active_sales %}
+                    <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);">
+                        <div class="card-body text-white p-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h2 class="card-title mb-2">{{ sale.name }}</h2>
+                                    <p class="card-text mb-3 opacity-75">{{ sale.description }}</p>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="badge bg-white text-danger me-3 p-2">
+                                            <i class="fas fa-percentage me-1"></i>{{ sale.discount_percentage }}% OFF
+                                        </span>
+                                        <span class="badge bg-light text-dark p-2">
+                                            <i class="fas fa-box me-1"></i>{{ sale.total_sold }} sold
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Countdown Timer -->
+                                    <div class="countdown-timer" data-sale-id="{{ sale.id }}">
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2">Ends in:</span>
+                                            <div class="countdown-display">
+                                                <span class="hours">00</span>:
+                                                <span class="minutes">00</span>:
+                                                <span class="seconds">00</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <a href="{% url 'promotions:flash_sale_detail' sale.id %}" class="btn btn-light btn-lg">
+                                        <i class="fas fa-shopping-bolt me-2"></i>Shop Now
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div class="mt-3">
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-white" role="progressbar" 
+                                         data-progress="{{ sale.total_sold }}/{{ sale.total_stock }}"
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small class="opacity-75 progress-text" data-sold="{{ sale.total_sold }}" data-total="{{ sale.total_stock }}">0% claimed</small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Featured Products from Active Sales -->
+    {% if active_sales %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <h3 class="mb-4">
+                    <i class="fas fa-star text-warning me-2"></i>Featured Flash Sale Items
+                </h3>
+                <div class="row g-4">
+                    {% for sale in active_sales %}
+                        {% for product in sale.flashsaleproduct_set.all|slice:":4" %}
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="card h-100 border-0 shadow-sm position-relative">
+                                    <!-- Sale Badge -->
+                                    <div class="position-absolute top-0 start-0 m-2 z-index-1">
+                                        <span class="badge bg-danger">{{ sale.discount_percentage }}% OFF</span>
+                                    </div>
+                                    
+                                    <!-- Product Image -->
+                                    {% if product.product.image %}
+                                        <img src="{{ product.product.image.url }}" alt="{{ product.product.name }}" 
+                                             class="card-img-top" style="height: 200px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                            <i class="fas fa-image text-muted fa-3x"></i>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ product.product.name|truncatechars:50 }}</h6>
+                                        <div class="mb-2">
+                                            <span class="text-decoration-line-through text-muted">${{ product.product.price|floatformat:2 }}</span>
+                                            <span class="text-danger fw-bold ms-2">${{ product.sale_price|floatformat:2 }}</span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted">{{ product.sold_count }} of {{ product.stock_limit }} sold</small>
+                                            <div class="progress mt-1" style="height: 4px;">
+                                                <div class="progress-bar bg-danger" role="progressbar" 
+                                                     data-sold="{{ product.sold_count }}" data-total="{{ product.stock_limit }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-grid">
+                                            <form method="post" action="{% url 'promotions:add_flash_sale_to_cart' product.id %}" class="flash-sale-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="quantity" value="1">
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Upcoming Flash Sales -->
+    {% if upcoming_sales %}
+        <div class="row">
+            <div class="col-12">
+                <h3 class="mb-4">
+                    <i class="fas fa-clock text-info me-2"></i>Coming Soon
+                </h3>
+                <div class="row g-4">
+                    {% for sale in upcoming_sales %}
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">{{ sale.name }}</h5>
+                                    <p class="text-muted small">{{ sale.description|truncatechars:100 }}</p>
+                                    <div class="badge bg-info mb-3">{{ sale.discount_percentage }}% OFF</div>
+                                    <div class="text-muted">
+                                        <small>Starts {{ sale.start_time|naturaltime }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- No Sales Message -->
+    {% if not active_sales and not upcoming_sales %}
+        <div class="text-center py-5">
+            <i class="fas fa-bolt text-muted mb-4" style="font-size: 4rem;"></i>
+            <h4 class="text-muted mb-3">No Flash Sales Available</h4>
+            <p class="text-muted mb-4">Check back soon for amazing deals!</p>
+            <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+                <i class="fas fa-shopping-bag me-2"></i>Browse Products
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- JavaScript for Countdown Timer and Progress Bars -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const timers = document.querySelectorAll('.countdown-timer');
+    
+    timers.forEach(timer => {
+        const saleId = timer.dataset.saleId;
+        updateTimer(saleId, timer);
+        setInterval(() => updateTimer(saleId, timer), 1000);
+    });
+    
+    // Calculate and set progress bars
+    document.querySelectorAll('.progress-bar[data-progress]').forEach(bar => {
+        const progress = bar.dataset.progress;
+        const [sold, total] = progress.split('/').map(Number);
+        const percentage = total > 0 ? Math.round((sold / total) * 100) : 0;
+        bar.style.width = percentage + '%';
+        bar.setAttribute('aria-valuenow', percentage);
+    });
+    
+    document.querySelectorAll('.progress-text[data-sold]').forEach(text => {
+        const sold = parseInt(text.dataset.sold);
+        const total = parseInt(text.dataset.total);
+        const percentage = total > 0 ? Math.round((sold / total) * 100) : 0;
+        text.textContent = percentage + '% claimed';
+    });
+    
+    document.querySelectorAll('.progress-bar[data-sold]').forEach(bar => {
+        const sold = parseInt(bar.dataset.sold);
+        const total = parseInt(bar.dataset.total);
+        const percentage = total > 0 ? Math.round((sold / total) * 100) : 0;
+        bar.style.width = percentage + '%';
+        bar.setAttribute('aria-valuenow', percentage);
+    });
+    
+    function updateTimer(saleId, timerElement) {
+        fetch(`/promotions/flash-sales/time-remaining/${saleId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const hours = String(data.hours).padStart(2, '0');
+                    const minutes = String(data.minutes).padStart(2, '0');
+                    const seconds = String(data.seconds).padStart(2, '0');
+                    
+                    timerElement.querySelector('.hours').textContent = hours;
+                    timerElement.querySelector('.minutes').textContent = minutes;
+                    timerElement.querySelector('.seconds').textContent = seconds;
+                } else {
+                    timerElement.innerHTML = '<span class="text-muted">Sale Ended</span>';
+                }
+            })
+            .catch(error => console.error('Timer error:', error));
+    }
+    
+    // Flash Sale Add to Cart Forms
+    document.querySelectorAll('.flash-sale-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('An error occurred. Please try again.', 'error');
+                console.error('Error:', error);
+            });
+        });
+    });
+    
+    function showMessage(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const alertHtml = `
+            <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+                 style="top: 20px; right: 20px; z-index: 9999;">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', alertHtml);
+        
+        // Auto-dismiss after 3 seconds
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) alert.remove();
+        }, 3000);
+    }
+});
+</script>
+
+<style>
+.countdown-timer {
+    font-family: 'Courier New', monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.countdown-display {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 1.1rem;
+}
+
+.z-index-1 {
+    z-index: 1;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.countdown-timer {
+    animation: pulse 2s infinite;
+}
+</style>
+{% endblock %}

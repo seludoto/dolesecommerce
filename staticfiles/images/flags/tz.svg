@@ -1,0 +1,8 @@
+<svg width="30" height="20" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100%" height="100%" fill="#00A550"/>
+    <rect width="100%" height="33%" fill="#00A550"/>
+    <rect width="100%" height="33%" y="33%" fill="#FFDE00"/>
+    <rect width="100%" height="34%" y="66%" fill="#1E90FF"/>
+    <polygon points="0,0 15,10 0,20" fill="#000"/>
+    <text x="20" y="15" font-family="Arial" font-size="8" fill="white">TZ</text>
+</svg>

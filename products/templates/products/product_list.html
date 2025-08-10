@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load currency_filters %}
 {% block content %}
   <h1>Product List</h1>
   <a href="{% url 'orders:cart_detail' %}" class="btn btn-primary mb-3">View Cart</a>
@@ -8,7 +9,7 @@
         {% if product.image %}
           <img src="{{ product.image.url }}" alt="{{ product.name }}" class="me-3" style="width:60px;height:60px;object-fit:cover;">
         {% endif %}
-        <a href="{% url 'products:product_detail' product.pk %}" class="fw-bold">{{ product.name }}</a> - ${{ product.price }}
+  <a href="{% url 'products:product_detail' product.pk %}" class="fw-bold">{{ product.name }}</a> - {{ product.price|convert_currency:current_currency }}
       </li>
     {% empty %}
       <li class="list-group-item">No products available.</li>

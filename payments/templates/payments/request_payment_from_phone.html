@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Request Payment from Phone{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-form {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-top: 20px;
+    }
+    .form-group label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+    .form-control {
+        border: 2px solid #e8ecef;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+    }
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    .request-btn {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+    .request-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+    }
+    .phone-format-help {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    .amount-display {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+    .header-icon {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+    .stk-push-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <div class="header-icon">
+                    <i class="fas fa-mobile-alt fa-2x"></i>
+                </div>
+                <h2 class="text-dark">Request Payment from Phone</h2>
+                <p class="text-muted">Send STK Push request to collect payment from customer</p>
+            </div>
+
+            <!-- STK Push Information -->
+            <div class="stk-push-info">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="mb-2">
+                            <i class="fas fa-mobile-alt"></i> How STK Push Works
+                        </h5>
+                        <p class="mb-0">Customer will receive a payment request on their phone. They enter their M-Pesa PIN to complete the payment.</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-hand-holding-usd fa-3x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-form">
+                <form method="post" id="requestPaymentForm">
+                    {% csrf_token %}
+                    
+                    <!-- Phone Number -->
+                    <div class="form-group">
+                        <label for="phone_number">
+                            <i class="fas fa-mobile-alt text-primary"></i> Customer Phone Number
+                        </label>
+                        <input type="tel" 
+                               class="form-control" 
+                               id="phone_number" 
+                               name="phone_number" 
+                               placeholder="0712345678 or +254712345678"
+                               required>
+                        <div class="phone-format-help">
+                            <i class="fas fa-info-circle"></i>
+                            Customer must have M-Pesa registered on this number
+                        </div>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="form-group">
+                        <label for="amount">
+                            <i class="fas fa-money-bill-wave text-success"></i> Amount to Request (KES)
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="amount" 
+                               name="amount" 
+                               placeholder="100.00"
+                               min="1" 
+                               step="0.01"
+                               required>
+                        <div class="phone-format-help">
+                            Minimum amount: KES 1.00
+                        </div>
+                    </div>
+
+                    <!-- Reference -->
+                    <div class="form-group">
+                        <label for="reference">
+                            <i class="fas fa-hashtag text-warning"></i> Account Reference (Optional)
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="reference" 
+                               name="reference" 
+                               placeholder="ORDER123, INV456, etc."
+                               maxlength="100">
+                        <div class="phone-format-help">
+                            Reference number that will appear on customer's statement
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="description">
+                            <i class="fas fa-comment text-info"></i> Payment Description
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="description" 
+                               name="description" 
+                               placeholder="Payment for Order #1234"
+                               maxlength="255"
+                               required>
+                        <div class="phone-format-help">
+                            Description shown to customer in payment request
+                        </div>
+                    </div>
+
+                    <!-- Amount Preview -->
+                    <div class="alert alert-success border" id="amountPreview" style="display: none;">
+                        <div class="text-center">
+                            <p class="mb-2">Requesting payment of:</p>
+                            <div class="amount-display" id="amountDisplay">KES 0.00</div>
+                            <small class="text-muted">Customer will see this amount in their STK Push prompt</small>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <a href="{% url 'payments:phone_payment_dashboard' %}" class="btn btn-secondary btn-block">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-success request-btn btn-block" id="requestButton">
+                                <i class="fas fa-mobile-alt"></i> Send Payment Request
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Information Cards -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-check-circle"></i> STK Push Process
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ol class="mb-0">
+                                <li class="mb-2">Customer receives payment request on phone</li>
+                                <li class="mb-2">Customer enters M-Pesa PIN</li>
+                                <li class="mb-2">Payment is processed instantly</li>
+                                <li>Both parties receive SMS confirmation</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-warning text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-exclamation-triangle"></i> Important Notes
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="mb-0">
+                                <li class="mb-2">Customer has 60 seconds to respond</li>
+                                <li class="mb-2">Request may be declined or timeout</li>
+                                <li class="mb-2">No charges if payment fails</li>
+                                <li>Standard M-Pesa charges apply on success</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('amount');
+    const amountPreview = document.getElementById('amountPreview');
+    const amountDisplay = document.getElementById('amountDisplay');
+    const phoneInput = document.getElementById('phone_number');
+    const form = document.getElementById('requestPaymentForm');
+    const requestButton = document.getElementById('requestButton');
+
+    // Format amount display
+    amountInput.addEventListener('input', function() {
+        const amount = parseFloat(this.value);
+        if (amount && amount > 0) {
+            amountDisplay.textContent = `KES ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})}`;
+            amountPreview.style.display = 'block';
+        } else {
+            amountPreview.style.display = 'none';
+        }
+    });
+
+    // Format phone number
+    phoneInput.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, ''); // Remove non-digits
+        
+        if (value.startsWith('254')) {
+            this.value = '+' + value;
+        } else if (value.startsWith('0')) {
+            this.value = value;
+        } else if (value.length === 9) {
+            this.value = '0' + value;
+        }
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        requestButton.disabled = true;
+        requestButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Request...';
+        
+        // Re-enable button after 10 seconds
+        setTimeout(function() {
+            requestButton.disabled = false;
+            requestButton.innerHTML = '<i class="fas fa-mobile-alt"></i> Send Payment Request';
+        }, 10000);
+    });
+
+    // Validate amount
+    amountInput.addEventListener('blur', function() {
+        const amount = parseFloat(this.value);
+        if (amount < 1) {
+            this.setCustomValidity('Amount must be at least KES 1.00');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+
+    // Auto-format reference
+    const referenceInput = document.getElementById('reference');
+    referenceInput.addEventListener('input', function() {
+        this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    });
+});
+</script>
+{% endblock %}

@@ -3,17 +3,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}dolesecommerce Site{% endblock %}</title>
+      <title>{% block title %}Dolese E-Commerce - Multi-Vendor Marketplace{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/logo.css' %}">
+    <link rel="stylesheet" href="{% static 'css/images.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modern-ui.css' %}">
 </head>
 <body>
-    <!-- Top Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0a2540; min-height: 60px;">
+  <!-- Top Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #0a2540; min-height: 60px; z-index:1040;">
       <div class="container-fluid px-3">
         <!-- Left: Logo & Delivery -->
         <a class="navbar-brand fw-bold d-flex align-items-center me-3" href="/">
-          <img src="{% static 'images/logo.png' %}" alt="Dolese Logo" style="height:36px; width:auto;">
+          <div class="logo-container">
+            <img src="{% static 'images/logo.png' %}" alt="Dolese Logo" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div class="text-logo" style="display: none;">
+              DoleseCommerce
+            </div>
+          </div>
         </a>
         <div class="d-none d-lg-flex flex-column justify-content-center align-items-start me-4" style="color:#fff; font-size:0.85rem;">
           <span style="color:#ccc;">Deliver to</span>
@@ -36,10 +46,57 @@
             </button>
           </div>
         </form>
-        <!-- Right: Language, Account, Orders, Cart -->
+        <!-- Right: Language, Currency, Social, Account, Orders, Cart -->
         <ul class="navbar-nav flex-row align-items-center ms-auto">
+          <!-- Language Switcher -->
+          <li class="nav-item mx-2 dropdown">
+            <a class="nav-link text-white dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="fi fi-gb"></span> EN
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+              <li>
+                <form action="/i18n/setlang/" method="post" class="px-3 py-1">
+                  {% csrf_token %}
+                  <select name="language" class="form-select form-select-sm mb-2" onchange="this.form.submit()">
+                    <option value="en" {% if LANGUAGE_CODE|slice:':2' == 'en' %}selected{% endif %}>English</option>
+                    <option value="sw" {% if LANGUAGE_CODE|slice:':2' == 'sw' %}selected{% endif %}>Swahili</option>
+                    <option value="fr" {% if LANGUAGE_CODE|slice:':2' == 'fr' %}selected{% endif %}>French</option>
+                    <option value="de" {% if LANGUAGE_CODE|slice:':2' == 'de' %}selected{% endif %}>German</option>
+                    <option value="es" {% if LANGUAGE_CODE|slice:':2' == 'es' %}selected{% endif %}>Spanish</option>
+                  </select>
+                  <input type="hidden" name="next" value="{{ request.path }}">
+                </form>
+              </li>
+            </ul>
+          </li>
+          <!-- Currency Switcher -->
+          <li class="nav-item mx-2 dropdown">
+            <a class="nav-link text-white dropdown-toggle" href="#" id="currencyDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {{ current_currency|default:'TZS' }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="currencyDropdown">
+              <li>
+                <form action="/set-currency/" method="post" class="px-3 py-1">
+                  {% csrf_token %}
+                  <select name="currency" class="form-select form-select-sm mb-2" onchange="this.form.submit()">
+                    {% for code, name in currencies %}
+                      <option value="{{ code }}" {% if code == current_currency %}selected{% endif %}>{{ code }} - {{ name }}</option>
+                    {% endfor %}
+                  </select>
+                  <input type="hidden" name="next" value="{{ request.path }}">
+                </form>
+              </li>
+            </ul>
+          </li>
+          <!-- Social Media Shop Links -->
           <li class="nav-item mx-2">
-            <a class="nav-link text-white" href="#">EN</a>
+            <a class="nav-link text-white" href="https://facebook.com/yourshop" target="_blank" title="Facebook Shop"><i class="fab fa-facebook"></i></a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link text-white" href="https://instagram.com/yourshop" target="_blank" title="Instagram Shop"><i class="fab fa-instagram"></i></a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link text-white" href="https://wa.me/255742346456" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
           </li>
           <li class="nav-item dropdown mx-2">
             <a class="nav-link text-white dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -48,11 +105,63 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
               {% if request.user.is_authenticated %}
-                <li><a class="dropdown-item" href="/users/profile/">Profile</a></li>
-                <li><a class="dropdown-item" href="/users/logout/">Logout</a></li>
+                <li><a class="dropdown-item" href="/users/profile/">
+                  <i class="fas fa-user"></i> Profile
+                </a></li>
+                <li><a class="dropdown-item" href="{% url 'reviews:my_reviews' %}">
+                  <i class="fas fa-star"></i> My Reviews
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                
+                <!-- Store Management Section -->
+                {% if request.user.store %}
+                  <li><a class="dropdown-item" href="{% url 'stores:seller_dashboard' %}">
+                    <i class="fas fa-store"></i> Seller Dashboard
+                  </a></li>
+                  <li><a class="dropdown-item" href="{% url 'stores:manage_products' %}">
+                    <i class="fas fa-box"></i> Manage Products
+                  </a></li>
+                  <li><a class="dropdown-item" href="{% url 'stores:add_product' %}">
+                    <i class="fas fa-plus"></i> Add Product
+                  </a></li>
+                  <li><a class="dropdown-item" href="{% url 'stores:store_settings' %}">
+                    <i class="fas fa-cog"></i> Store Settings
+                  </a></li>
+                {% else %}
+                  {% if request.user.store_applications.all %}
+                    <li><a class="dropdown-item" href="{% url 'stores:application_status' %}">
+                      <i class="fas fa-clock"></i> Application Status
+                    </a></li>
+                  {% else %}
+                    <li><a class="dropdown-item" href="{% url 'stores:apply_for_store' %}">
+                      <i class="fas fa-store"></i> Become a Seller
+                    </a></li>
+                  {% endif %}
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                
+                {% if request.user.is_staff %}
+                  <li><a class="dropdown-item" href="{% url 'payments:phone_payment_dashboard' %}">
+                    <i class="fas fa-mobile-alt"></i> Phone Payments
+                  </a></li>
+                  <li><a class="dropdown-item" href="{% url 'payments:admin_payment_list' %}">
+                    <i class="fas fa-credit-card"></i> Payment Admin
+                  </a></li>
+                  <li><a class="dropdown-item" href="/admin/">
+                    <i class="fas fa-tools"></i> Admin Panel
+                  </a></li>
+                  <li><hr class="dropdown-divider"></li>
+                {% endif %}
+                <li><a class="dropdown-item" href="/users/logout/">
+                  <i class="fas fa-sign-out-alt"></i> Logout
+                </a></li>
               {% else %}
                 <li><a class="dropdown-item" href="/users/login/">Login</a></li>
                 <li><a class="dropdown-item" href="/users/register/">Register</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/users/invite-friends/">
+                  <i class="fas fa-user-friends"></i> Invite Friends (Referral)
+                </a></li>
               {% endif %}
             </ul>
           </li>
@@ -74,10 +183,11 @@
       </div>
     </nav>
 
-    <!-- Secondary Menu Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #163d56; min-height: 40px;">
+  <!-- Secondary Menu Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #163d56; min-height: 40px; z-index:1030;">
       <div class="container-fluid px-3">
-        <button class="btn btn-outline-light me-2" type="button" style="border:none;">
+        <!-- Offcanvas trigger for ☰ All -->
+        <button class="btn btn-outline-light me-2" type="button" style="border:none;" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
           <span style="font-size:1.2rem;">&#9776;</span> <span class="ms-1">All</span>
         </button>
         <ul class="navbar-nav flex-row">
@@ -88,8 +198,30 @@
         </ul>
       </div>
     </nav>
+
+    <!-- Offcanvas Sidebar for ☰ All -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="sidebarMenuLabel">All Categories</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="list-unstyled">
+          <li><a href="/products/" class="text-decoration-none">All Products</a></li>
+          {% for category in categories %}
+            <li><a href="{% url 'products:category_products' category.slug %}" class="text-decoration-none">{{ category.name }}</a></li>
+          {% empty %}
+            <li><span class="text-muted">No categories available.</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
     <div class="container min-vh-75 py-4">
         {% block content %}{% endblock %}
+        <!-- Loyalty Program Banner -->
+        <div class="alert alert-success mt-4 text-center" role="alert" style="max-width:500px; margin:auto;">
+          <i class="fas fa-gift"></i> Join our <b>Loyalty Program</b>! Earn points for every purchase and redeem for discounts.
+        </div>
     </div>
 
     <!-- Sign-Up Modal -->
@@ -97,7 +229,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:18px; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
           <div class="modal-header border-0 flex-column align-items-center">
-            <img src="{% static 'images/paper-boat.png' %}" alt="Paper Boat Logo" style="height:60px; margin-bottom:10px;">
+            <img src="{% static 'images/paper-boat.png.jpg' %}" alt="Paper Boat Logo" style="height:60px; margin-bottom:10px;">
             <h5 class="modal-title w-100 text-center" id="signupModalLabel">Sign Up – Enter details to sign up</h5>
           </div>
           <form method="post" action="/users/register/" class="px-4 pb-4">
@@ -122,7 +254,7 @@
               <label for="country" class="form-label">Country</label>
               <div class="input-group">
                 <span class="input-group-text" id="countryFlag" style="background:transparent; border:none;">
-                  <img src="{% static 'images/flags/tz.png' %}" alt="TZ" style="height:20px;">
+                  <img src="{% static 'images/flags/tz.svg' %}" alt="TZ" style="height:20px;">
                 </span>
                 <select class="form-select" id="country" name="country" required>
                   <option value="TZ">Tanzania</option>
@@ -174,6 +306,148 @@
     s1.setAttribute('crossorigin','*');
     s0.parentNode.insertBefore(s1,s0);
     })();
+    </script>
+    
+    <!-- Logo Fallback Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mainLogo = document.getElementById('main-logo');
+        const textLogo = document.querySelector('.text-logo');
+        
+        // Check if image loaded successfully
+        if (mainLogo) {
+            mainLogo.addEventListener('load', function() {
+                // Image loaded successfully
+                this.style.display = 'block';
+                if (textLogo) textLogo.style.display = 'none';
+            });
+            
+            mainLogo.addEventListener('error', function() {
+                // Image failed to load, show text logo
+                this.style.display = 'none';
+                if (textLogo) textLogo.style.display = 'block';
+            });
+            
+            // Check if image is already loaded (cache)
+            if (mainLogo.complete) {
+                if (mainLogo.naturalWidth === 0) {
+                    // Image failed to load
+                    mainLogo.style.display = 'none';
+                    if (textLogo) textLogo.style.display = 'block';
+                } else {
+                    // Image loaded successfully
+                    mainLogo.style.display = 'block';
+                    if (textLogo) textLogo.style.display = 'none';
+                }
+            }
+        }
+    });
+    </script>
+    
+    <!-- Image Fallback Handler -->
+    <script src="{% static 'js/image-fallbacks.js' %}"></script>
+    
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="floating-btn" style="display: none;" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- Modern UI Enhancements -->
+    <script>
+        // Back to Top Functionality
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.style.display = 'block';
+                backToTop.style.opacity = '1';
+            } else {
+                backToTop.style.opacity = '0';
+                setTimeout(() => {
+                    if (window.pageYOffset <= 300) {
+                        backToTop.style.display = 'none';
+                    }
+                }, 300);
+            }
+        });
+        
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Enhanced Button Loading States
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add loading state to forms
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+                    if (submitBtn && !submitBtn.classList.contains('no-loading')) {
+                        submitBtn.classList.add('loading');
+                        submitBtn.disabled = true;
+                        
+                        // Re-enable after 5 seconds to prevent permanent disable
+                        setTimeout(() => {
+                            submitBtn.classList.remove('loading');
+                            submitBtn.disabled = false;
+                        }, 5000);
+                    }
+                });
+            });
+            
+            // Add smooth hover effects to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Enhanced dropdown animations
+            const dropdowns = document.querySelectorAll('.dropdown-menu');
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('show.bs.dropdown', function() {
+                    this.style.opacity = '0';
+                    this.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        this.style.transition = 'all 0.3s ease';
+                        this.style.opacity = '1';
+                        this.style.transform = 'translateY(0)';
+                    }, 10);
+                });
+            });
+        });
+        
+        // Add page transition effects
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                document.body.style.transition = 'all 0.5s ease';
+                document.body.style.opacity = '1';
+                document.body.style.transform = 'translateY(0)';
+            }, 100);
+        });
+        
+        // Enhanced search functionality
+        const searchInput = document.querySelector('input[type="search"]');
+        if (searchInput) {
+            searchInput.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.style.transition = 'transform 0.3s ease';
+            });
+            
+            searchInput.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        }
     </script>
 </body>
 </html>

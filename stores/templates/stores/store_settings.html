@@ -1,0 +1,535 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Store Settings - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+    }
+    
+    .settings-container {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .settings-section {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .settings-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-title i {
+        color: #007bff;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 8px;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        padding: 12px;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    
+    .store-logo-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 2px solid #e9ecef;
+        margin-bottom: 15px;
+    }
+    
+    .store-banner-preview {
+        width: 100%;
+        max-width: 400px;
+        height: 150px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 2px solid #e9ecef;
+        margin-bottom: 15px;
+    }
+    
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+    
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+        background-color: #007bff;
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+    
+    .social-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+    
+    .social-input-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+    
+    .facebook { background: #1877f2; }
+    .twitter { background: #1da1f2; }
+    .instagram { background: #e4405f; }
+    .linkedin { background: #0077b5; }
+    
+    .btn {
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .alert {
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border: none;
+    }
+    
+    .store-preview {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+    
+    .preview-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .preview-logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 6px;
+        object-fit: cover;
+    }
+    
+    .business-hours-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .day-hours {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .day-label {
+        min-width: 80px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="settings-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-cog"></i> Store Settings</h1>
+                <p class="mb-0">Configure your store information and preferences</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{% url 'stores:seller_dashboard' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="settings-container">
+            <!-- Basic Information Section -->
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="fas fa-store"></i>
+                    Basic Information
+                </h3>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="store_name" class="form-label">Store Name *</label>
+                            <input type="text" class="form-control" id="store_name" name="name" 
+                                   value="{{ store.name }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description" class="form-label">Store Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" 
+                                      placeholder="Tell customers about your store...">{{ store.description }}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="store_type" class="form-label">Store Type</label>
+                            <select class="form-select" id="store_type" name="store_type">
+                                {% for value, label in store_types %}
+                                    <option value="{{ value }}" {% if store.store_type == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Store Logo</label>
+                            {% if store.logo %}
+                                <img src="{{ store.logo.url }}" alt="Store Logo" class="store-logo-preview d-block">
+                            {% else %}
+                                <div class="store-logo-preview d-flex align-items-center justify-content-center bg-light">
+                                    <i class="fas fa-store fa-2x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <input type="file" class="form-control" name="logo" accept="image/*">
+                            <small class="text-muted">Recommended: 200x200px, PNG or JPG</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Store Banner Section -->
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="fas fa-image"></i>
+                    Store Banner
+                </h3>
+                
+                <div class="form-group">
+                    {% if store.banner %}
+                        <img src="{{ store.banner.url }}" alt="Store Banner" class="store-banner-preview d-block">
+                    {% else %}
+                        <div class="store-banner-preview d-flex align-items-center justify-content-center bg-light">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    <input type="file" class="form-control" name="banner" accept="image/*">
+                    <small class="text-muted">Recommended: 1200x400px, PNG or JPG</small>
+                </div>
+            </div>
+
+            <!-- Contact Information Section -->
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="fas fa-phone"></i>
+                    Contact Information
+                </h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   value="{{ store.email }}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   value="{{ store.phone }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="website" class="form-label">Website URL</label>
+                            <input type="url" class="form-control" id="website" name="website" 
+                                   value="{{ store.website }}" placeholder="https://example.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="address" class="form-label">Business Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="3">{{ store.address }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media Links Section -->
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="fas fa-share-alt"></i>
+                    Social Media Links
+                </h3>
+                
+                <div class="social-links">
+                    <div class="social-input-group">
+                        <div class="social-icon facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </div>
+                        <input type="url" class="form-control" name="facebook_url" 
+                               value="{{ store.facebook_url }}" placeholder="Facebook page URL">
+                    </div>
+                    
+                    <div class="social-input-group">
+                        <div class="social-icon twitter">
+                            <i class="fab fa-twitter"></i>
+                        </div>
+                        <input type="url" class="form-control" name="twitter_url" 
+                               value="{{ store.twitter_url }}" placeholder="Twitter profile URL">
+                    </div>
+                    
+                    <div class="social-input-group">
+                        <div class="social-icon instagram">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <input type="url" class="form-control" name="instagram_url" 
+                               value="{{ store.instagram_url }}" placeholder="Instagram profile URL">
+                    </div>
+                    
+                    <div class="social-input-group">
+                        <div class="social-icon linkedin">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                        <input type="url" class="form-control" name="linkedin_url" 
+                               value="{{ store.linkedin_url }}" placeholder="LinkedIn page URL">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Store Status Section -->
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="fas fa-toggle-on"></i>
+                    Store Status
+                </h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label d-flex align-items-center gap-3">
+                                Store Active
+                                <label class="switch">
+                                    <input type="checkbox" name="is_active" {% if store.is_active %}checked{% endif %}>
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                            <small class="text-muted">When disabled, customers cannot view your store or products</small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label d-flex align-items-center gap-3">
+                                Accept New Orders
+                                <label class="switch">
+                                    <input type="checkbox" name="accepting_orders" {% if store.accepting_orders %}checked{% endif %}>
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                            <small class="text-muted">When disabled, customers cannot place new orders</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="fas fa-eye"></i>
+                    Store Preview
+                </h3>
+                
+                <div class="store-preview">
+                    <div class="preview-header">
+                        {% if store.logo %}
+                            <img src="{{ store.logo.url }}" alt="Store Logo" class="preview-logo">
+                        {% else %}
+                            <div class="preview-logo bg-light d-flex align-items-center justify-content-center">
+                                <i class="fas fa-store text-muted"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="mb-1">{{ store.name|default:"Your Store Name" }}</h5>
+                            <p class="mb-0 text-muted">{{ store.get_store_type_display|default:"Store Type" }}</p>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0">{{ store.description|default:"Your store description will appear here..." }}</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'stores:seller_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Image preview functionality
+    $('input[name="logo"]').on('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('.store-logo-preview').attr('src', e.target.result).show();
+                $('.preview-logo').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    $('input[name="banner"]').on('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('.store-banner-preview').attr('src', e.target.result).show();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Live preview updates
+    $('#store_name').on('input', function() {
+        $('.store-preview h5').text($(this).val() || 'Your Store Name');
+    });
+    
+    $('#description').on('input', function() {
+        $('.store-preview .text-muted:last').text($(this).val() || 'Your store description will appear here...');
+    });
+    
+    $('#store_type').on('change', function() {
+        const selectedText = $(this).find('option:selected').text();
+        $('.store-preview .text-muted:first').text(selectedText);
+    });
+    
+    // Form validation
+    $('form').on('submit', function(e) {
+        const storeName = $('#store_name').val().trim();
+        if (!storeName) {
+            e.preventDefault();
+            alert('Please enter a store name.');
+            $('#store_name').focus();
+            return false;
+        }
+        
+        // Show loading state
+        $(this).find('button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+    });
+    
+    // Auto-save draft functionality (optional)
+    let autoSaveTimeout;
+    $('input, textarea, select').on('change input', function() {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(function() {
+            // You could implement auto-save here
+            console.log('Auto-saving draft...');
+        }, 2000);
+    });
+});
+</script>
+{% endblock %}

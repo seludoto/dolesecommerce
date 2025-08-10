@@ -1,0 +1,41 @@
+/* Logo Styles */
+.navbar-brand .logo-container {
+    display: flex;
+    align-items: center;
+    height: 40px;
+}
+
+.navbar-brand .text-logo {
+    background: linear-gradient(45deg, #ffffff, #e3f2fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    text-decoration: none;
+    letter-spacing: 1.2px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.navbar-brand img {
+    max-height: 40px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(1.1) contrast(1.1);
+}
+
+.navbar-brand:hover .text-logo {
+    background: linear-gradient(45deg, #fff, #bbdefb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Fallback for browsers that don't support background-clip */
+@supports not (-webkit-background-clip: text) {
+    .navbar-brand .text-logo {
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+}

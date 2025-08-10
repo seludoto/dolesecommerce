@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Send Money to Phone{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-form {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-top: 20px;
+    }
+    .form-group label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+    .form-control {
+        border: 2px solid #e8ecef;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+    }
+    .form-control:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    .send-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+    .send-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    .phone-format-help {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    .amount-display {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+    .header-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <div class="header-icon">
+                    <i class="fas fa-paper-plane fa-2x"></i>
+                </div>
+                <h2 class="text-dark">Send Money to Phone</h2>
+                <p class="text-muted">Send money directly to any M-Pesa phone number</p>
+            </div>
+
+            <div class="payment-form">
+                <form method="post" id="sendMoneyForm">
+                    {% csrf_token %}
+                    
+                    <!-- Phone Number -->
+                    <div class="form-group">
+                        <label for="phone_number">
+                            <i class="fas fa-mobile-alt text-primary"></i> Recipient Phone Number
+                        </label>
+                        <input type="tel" 
+                               class="form-control" 
+                               id="phone_number" 
+                               name="phone_number" 
+                               placeholder="0712345678 or +254712345678"
+                               required>
+                        <div class="phone-format-help">
+                            <i class="fas fa-info-circle"></i>
+                            Supported formats: 0712345678, +254712345678, 254712345678
+                        </div>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="form-group">
+                        <label for="amount">
+                            <i class="fas fa-money-bill-wave text-success"></i> Amount (KES)
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="amount" 
+                               name="amount" 
+                               placeholder="100.00"
+                               min="1" 
+                               step="0.01"
+                               required>
+                        <div class="phone-format-help">
+                            Minimum amount: KES 1.00
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="description">
+                            <i class="fas fa-comment text-info"></i> Payment Description
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="description" 
+                               name="description" 
+                               placeholder="Refund for order #1234"
+                               maxlength="255"
+                               required>
+                        <div class="phone-format-help">
+                            Brief description of the payment (max 255 characters)
+                        </div>
+                    </div>
+
+                    <!-- Amount Preview -->
+                    <div class="alert alert-light border" id="amountPreview" style="display: none;">
+                        <div class="text-center">
+                            <p class="mb-2">You are sending:</p>
+                            <div class="amount-display" id="amountDisplay">KES 0.00</div>
+                            <small class="text-muted">Standard M-Pesa charges may apply to the recipient</small>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <a href="{% url 'payments:phone_payment_dashboard' %}" class="btn btn-secondary btn-block">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary send-btn btn-block" id="sendButton">
+                                <i class="fas fa-paper-plane"></i> Send Money
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Information Card -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle"></i> Important Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">
+                            <strong>Processing:</strong> Money will be sent immediately via M-Pesa B2C
+                        </li>
+                        <li class="mb-2">
+                            <strong>Recipient:</strong> Will receive the money directly in their M-Pesa wallet
+                        </li>
+                        <li class="mb-2">
+                            <strong>Charges:</strong> Transaction charges are deducted from the business account
+                        </li>
+                        <li class="mb-2">
+                            <strong>Limits:</strong> Subject to M-Pesa daily transaction limits
+                        </li>
+                        <li>
+                            <strong>Confirmation:</strong> Both sender and recipient will receive SMS confirmation
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('amount');
+    const amountPreview = document.getElementById('amountPreview');
+    const amountDisplay = document.getElementById('amountDisplay');
+    const phoneInput = document.getElementById('phone_number');
+    const form = document.getElementById('sendMoneyForm');
+    const sendButton = document.getElementById('sendButton');
+
+    // Format amount display
+    amountInput.addEventListener('input', function() {
+        const amount = parseFloat(this.value);
+        if (amount && amount > 0) {
+            amountDisplay.textContent = `KES ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})}`;
+            amountPreview.style.display = 'block';
+        } else {
+            amountPreview.style.display = 'none';
+        }
+    });
+
+    // Format phone number
+    phoneInput.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, ''); // Remove non-digits
+        
+        if (value.startsWith('254')) {
+            this.value = '+' + value;
+        } else if (value.startsWith('0')) {
+            this.value = value;
+        } else if (value.length === 9) {
+            this.value = '0' + value;
+        }
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        sendButton.disabled = true;
+        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        
+        // Re-enable button after 5 seconds to prevent permanent disable
+        setTimeout(function() {
+            sendButton.disabled = false;
+            sendButton.innerHTML = '<i class="fas fa-paper-plane"></i> Send Money';
+        }, 5000);
+    });
+
+    // Validate amount
+    amountInput.addEventListener('blur', function() {
+        const amount = parseFloat(this.value);
+        if (amount < 1) {
+            this.setCustomValidity('Amount must be at least KES 1.00');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+});
+</script>
+{% endblock %}

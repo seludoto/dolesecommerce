@@ -1,0 +1,722 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Smart Shopping Cart - AI-Powered Features{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="fas fa-shopping-cart me-2"></i>Your Cart
+                    {% if cart_items %}
+                    <span class="badge bg-primary">{{ cart_items|length }} item{{ cart_items|length|pluralize }}</span>
+                    {% endif %}
+                </h2>
+                
+                {% if cart_items %}
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                            data-bs-toggle="dropdown">
+                        <i class="fas fa-cog me-1"></i>Options
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="saveForLater()">
+                            <i class="fas fa-bookmark me-2"></i>Save all for later</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="shareCart()">
+                            <i class="fas fa-share me-2"></i>Share cart</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="clearCart()">
+                            <i class="fas fa-trash me-2"></i>Clear cart</a></li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if cart_items %}
+            <!-- Cart Items List -->
+            <div id="cartItemsList">
+                {% for item in cart_items %}
+                <div class="card mb-3 cart-item" data-item-id="{{ item.id }}">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <!-- Product Image -->
+                            <div class="col-md-2">
+                                {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                     class="img-fluid rounded" style="max-height: 80px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center rounded"
+                                     style="height: 80px;">
+                                    <i class="fas fa-image text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Product Details -->
+                            <div class="col-md-4">
+                                <h6 class="mb-1">
+                                    <a href="{% url 'products:product_detail' item.product.pk %}" 
+                                       class="text-decoration-none">{{ item.product.name }}</a>
+                                </h6>
+                                <small class="text-muted">
+                                    {{ item.product.category.name }}
+                                    {% if item.product.brand %} • {{ item.product.brand.name }}{% endif %}
+                                </small>
+                                
+                                <!-- Product Attributes -->
+                                {% if item.attributes %}
+                                <div class="mt-1">
+                                    {% for attr, value in item.attributes.items %}
+                                    <small class="badge bg-light text-dark me-1">{{ attr }}: {{ value }}</small>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Stock Status -->
+                                <div class="mt-1">
+                                    {% if item.product.stock > 10 %}
+                                    <small class="text-success">
+                                        <i class="fas fa-check-circle me-1"></i>In Stock
+                                    </small>
+                                    {% elif item.product.stock > 0 %}
+                                    <small class="text-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Only {{ item.product.stock }} left
+                                    </small>
+                                    {% else %}
+                                    <small class="text-danger">
+                                        <i class="fas fa-times-circle me-1"></i>Out of Stock
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Quantity Controls -->
+                            <div class="col-md-2">
+                                <div class="input-group input-group-sm">
+                                    <button class="btn btn-outline-secondary quantity-btn" type="button"
+                                            data-action="decrease" data-item-id="{{ item.id }}">-</button>
+                                    <input type="number" class="form-control text-center quantity-input" 
+                                           value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}"
+                                           data-item-id="{{ item.id }}">
+                                    <button class="btn btn-outline-secondary quantity-btn" type="button"
+                                            data-action="increase" data-item-id="{{ item.id }}">+</button>
+                                </div>
+                                <small class="text-muted d-block text-center mt-1">
+                                    Max: {{ item.product.stock }}
+                                </small>
+                            </div>
+                            
+                            <!-- Price -->
+                            <div class="col-md-2 text-center">
+                                <div class="fw-bold text-success">${{ item.subtotal }}</div>
+                                {% if item.original_price and item.original_price > item.product.price %}
+                                <small class="text-muted text-decoration-line-through">
+                                    ${{ item.original_subtotal }}
+                                </small>
+                                <div class="badge bg-success">
+                                    Save ${{ item.savings }}
+                                </div>
+                                {% endif %}
+                                <div class="small text-muted">
+                                    ${{ item.product.price }} each
+                                </div>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="col-md-2">
+                                <div class="d-flex flex-column gap-1">
+                                    <button class="btn btn-sm btn-outline-primary save-for-later-btn" 
+                                            data-item-id="{{ item.id }}">
+                                        <i class="fas fa-bookmark me-1"></i>Save for later
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger remove-item-btn" 
+                                            data-item-id="{{ item.id }}">
+                                        <i class="fas fa-trash me-1"></i>Remove
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info share-item-btn" 
+                                            data-product-id="{{ item.product.id }}">
+                                        <i class="fas fa-share me-1"></i>Share
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- AI Smart Suggestions for this item -->
+                        {% if item.smart_suggestions %}
+                        <div class="mt-3 p-3 bg-light rounded">
+                            <h6 class="text-primary mb-2">
+                                <i class="fas fa-robot me-2"></i>Smart Suggestions for this item
+                            </h6>
+                            <div class="row g-2">
+                                {% for suggestion in item.smart_suggestions %}
+                                <div class="col-md-4">
+                                    <div class="d-flex align-items-center p-2 border rounded bg-white">
+                                        {% if suggestion.image %}
+                                        <img src="{{ suggestion.image.url }}" alt="{{ suggestion.name }}" 
+                                             class="me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% endif %}
+                                        <div class="flex-grow-1">
+                                            <small class="fw-bold d-block">{{ suggestion.name|truncatechars:20 }}</small>
+                                            <small class="text-success">${{ suggestion.price }}</small>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-success add-to-cart-btn" 
+                                                data-product-id="{{ suggestion.id }}">+</button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- AI Cart Optimization -->
+            {% if cart_optimization %}
+            <div class="card bg-gradient-primary text-white mb-4">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-magic me-2"></i>AI Cart Optimization
+                    </h6>
+                    <p class="card-text mb-3">{{ cart_optimization.message }}</p>
+                    
+                    {% if cart_optimization.suggestions %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for suggestion in cart_optimization.suggestions %}
+                        <button class="btn btn-light btn-sm" onclick="applySuggestion('{{ suggestion.type }}', '{{ suggestion.data }}')">
+                            {{ suggestion.action }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Saved for Later Section -->
+            {% if saved_items %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bookmark me-2"></i>Saved for Later 
+                        <span class="badge bg-secondary">{{ saved_items|length }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for item in saved_items %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="d-flex align-items-center p-2 border rounded">
+                                {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                     class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <small class="fw-bold d-block">{{ item.product.name|truncatechars:25 }}</small>
+                                    <small class="text-success">${{ item.product.price }}</small>
+                                </div>
+                                <div class="d-flex flex-column gap-1">
+                                    <button class="btn btn-sm btn-success move-to-cart-btn" 
+                                            data-item-id="{{ item.id }}">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger remove-saved-btn" 
+                                            data-item-id="{{ item.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <!-- Empty Cart -->
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-cart fa-5x text-muted mb-4"></i>
+                <h3>Your cart is empty</h3>
+                <p class="text-muted mb-4">Looks like you haven't added anything to your cart yet.</p>
+                
+                <!-- AI Recommendations for empty cart -->
+                {% if recommended_products %}
+                <div class="mb-4">
+                    <h5>Start with these recommendations:</h5>
+                    <div class="row justify-content-center">
+                        {% for product in recommended_products|slice:":3" %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                {% if product.image %}
+                                <img src="{{ product.image.url }}" class="card-img-top" 
+                                     style="height: 150px; object-fit: cover;">
+                                {% endif %}
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">{{ product.name|truncatechars:30 }}</h6>
+                                    <div class="text-success fw-bold">${{ product.price }}</div>
+                                    <button class="btn btn-primary btn-sm mt-2 add-to-cart-btn" 
+                                            data-product-id="{{ product.id }}">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Cart Summary Sidebar -->
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calculator me-2"></i>Order Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if cart_items %}
+                    <!-- Pricing Breakdown -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal ({{ cart_items|length }} items):</span>
+                            <span>${{ subtotal }}</span>
+                        </div>
+                        
+                        {% if discount_amount %}
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Discount:</span>
+                            <span>-${{ discount_amount }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span>
+                                {% if shipping_cost %}
+                                    ${{ shipping_cost }}
+                                {% else %}
+                                    <span class="text-success">FREE</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        {% if tax_amount %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax:</span>
+                            <span>${{ tax_amount }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <hr>
+                        <div class="d-flex justify-content-between h5 mb-3">
+                            <strong>Total:</strong>
+                            <strong class="text-success">${{ total }}</strong>
+                        </div>
+                        
+                        {% if savings_amount %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-piggy-bank me-2"></i>
+                            You're saving ${{ savings_amount }} on this order!
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Promo Code -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="promoCode" 
+                                   placeholder="Enter promo code">
+                            <button class="btn btn-outline-secondary" type="button" onclick="applyPromoCode()">
+                                Apply
+                            </button>
+                        </div>
+                        
+                        {% if applied_promos %}
+                        <div class="mt-2">
+                            {% for promo in applied_promos %}
+                            <span class="badge bg-success me-1">
+                                {{ promo.code }} 
+                                <button class="btn-close btn-close-white ms-1" 
+                                        onclick="removePromo('{{ promo.code }}')"></button>
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Checkout Button -->
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="{% url 'orders:cart_checkout' %}" class="btn btn-success btn-lg">
+                            <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+                        </a>
+                        <button class="btn btn-outline-primary" onclick="requestQuoteEstimate()">
+                            <i class="fas fa-calculator me-2"></i>Get Quote Estimate
+                        </button>
+                    </div>
+                    
+                    <!-- Payment Options Preview -->
+                    <div class="text-center mb-3">
+                        <small class="text-muted">We accept:</small>
+                        <div class="mt-1">
+                            <img src="{% static 'images/payment-icons.png' %}" alt="Payment methods" 
+                                 class="img-fluid" style="max-height: 30px;">
+                        </div>
+                    </div>
+                    
+                    <!-- Security Badge -->
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-lock me-1"></i>
+                            Secure checkout with SSL encryption
+                        </small>
+                    </div>
+                    
+                    {% else %}
+                    <!-- Empty Cart Summary -->
+                    <div class="text-center text-muted">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Add items to see order summary
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- AI Recommendations Sidebar -->
+            {% if ai_recommendations %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-robot me-2"></i>You Might Also Like
+                    </h6>
+                </div>
+                <div class="card-body p-2">
+                    {% for product in ai_recommendations %}
+                    <div class="d-flex align-items-center mb-3 p-2 border rounded">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" 
+                             class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <a href="{% url 'products:product_detail' product.pk %}" 
+                               class="text-decoration-none">
+                                <small class="fw-bold d-block">{{ product.name|truncatechars:25 }}</small>
+                                <small class="text-success">${{ product.price }}</small>
+                                <div class="text-warning">
+                                    {% for i in "12345"|make_list %}
+                                        {% if i <= product.average_rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </a>
+                        </div>
+                        <button class="btn btn-sm btn-outline-success add-to-cart-btn" 
+                                data-product-id="{{ product.id }}">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Recently Viewed -->
+            {% if recently_viewed %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Recently Viewed
+                    </h6>
+                </div>
+                <div class="card-body p-2">
+                    {% for product in recently_viewed|slice:":3" %}
+                    <div class="d-flex align-items-center mb-2 p-2 border rounded">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" 
+                             class="me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <a href="{% url 'products:product_detail' product.pk %}" 
+                               class="text-decoration-none">
+                                <small class="fw-bold d-block">{{ product.name|truncatechars:20 }}</small>
+                                <small class="text-success">${{ product.price }}</small>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+    <!-- Toasts will be dynamically added here -->
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize cart functionality
+    initializeCartFeatures();
+    
+    // Auto-save cart changes
+    setInterval(autoSaveCart, 30000); // Save every 30 seconds
+});
+
+function initializeCartFeatures() {
+    // Quantity change handlers
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const action = this.dataset.action;
+            const itemId = this.dataset.itemId;
+            const input = document.querySelector(`input[data-item-id="${itemId}"]`);
+            
+            let newQuantity = parseInt(input.value);
+            if (action === 'increase') {
+                newQuantity = Math.min(newQuantity + 1, parseInt(input.getAttribute('max')));
+            } else {
+                newQuantity = Math.max(newQuantity - 1, 1);
+            }
+            
+            input.value = newQuantity;
+            updateCartItem(itemId, newQuantity);
+        });
+    });
+    
+    // Direct quantity input changes
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const itemId = this.dataset.itemId;
+            const quantity = parseInt(this.value);
+            updateCartItem(itemId, quantity);
+        });
+    });
+}
+
+function updateCartItem(itemId, quantity) {
+    const button = document.querySelector(`[data-item-id="${itemId}"]`);
+    const originalText = button ? button.innerHTML : '';
+    
+    if (button) {
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        button.disabled = true;
+    }
+    
+    fetch(`{% url 'cart:update_cart_item' 0 %}`.replace('0', itemId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: JSON.stringify({
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update price displays
+            updateCartDisplay(data.cart_data);
+            showToast('Cart updated successfully!', 'success');
+        } else {
+            throw new Error(data.message || 'Failed to update cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Failed to update cart. Please try again.', 'error');
+    })
+    .finally(() => {
+        if (button) {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    });
+}
+
+function addToCart(productId, quantity = 1) {
+    fetch(`{% url 'cart:add_to_cart' %}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Product added to cart!', 'success');
+            // Refresh page to show updated cart
+            window.location.reload();
+        } else {
+            throw new Error(data.message || 'Failed to add product to cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Failed to add product to cart.', 'error');
+    });
+}
+
+function removeItem(itemId) {
+    if (!confirm('Are you sure you want to remove this item from your cart?')) {
+        return;
+    }
+    
+    fetch(`{% url 'cart:remove_cart_item' 0 %}`.replace('0', itemId), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove item from DOM
+            document.querySelector(`[data-item-id="${itemId}"]`).closest('.cart-item').remove();
+            updateCartDisplay(data.cart_data);
+            showToast('Item removed from cart', 'info');
+            
+            // Reload if cart is empty
+            if (data.cart_data.items_count === 0) {
+                window.location.reload();
+            }
+        } else {
+            throw new Error(data.message || 'Failed to remove item');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Failed to remove item. Please try again.', 'error');
+    });
+}
+
+function saveForLater(itemId) {
+    fetch(`{% url 'cart:save_for_later' 0 %}`.replace('0', itemId), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Item saved for later!', 'success');
+            window.location.reload();
+        } else {
+            throw new Error(data.message || 'Failed to save item');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Failed to save item. Please try again.', 'error');
+    });
+}
+
+function applyPromoCode() {
+    const promoCode = document.getElementById('promoCode').value.trim();
+    if (!promoCode) {
+        showToast('Please enter a promo code', 'warning');
+        return;
+    }
+    
+    fetch(`{% url 'cart:apply_promo_code' %}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: JSON.stringify({
+            promo_code: promoCode
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Promo code applied successfully!', 'success');
+            updateCartDisplay(data.cart_data);
+            document.getElementById('promoCode').value = '';
+        } else {
+            throw new Error(data.message || 'Invalid promo code');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast(error.message, 'error');
+    });
+}
+
+function updateCartDisplay(cartData) {
+    // Update totals in summary
+    if (cartData.subtotal) {
+        document.querySelector('.subtotal').textContent = `$${cartData.subtotal}`;
+    }
+    if (cartData.total) {
+        document.querySelector('.total').textContent = `$${cartData.total}`;
+    }
+    // Update other cart elements as needed
+}
+
+function autoSaveCart() {
+    // Auto-save cart state for abandoned cart recovery
+    fetch(`{% url 'cart:auto_save' %}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        }
+    });
+}
+
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toastId = 'toast-' + Date.now();
+    
+    const toastHTML = `
+        <div class="toast align-items-center text-white bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'primary'} border-0" 
+             role="alert" aria-live="assertive" aria-atomic="true" id="${toastId}">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+    
+    // Auto remove after showing
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+</script>
+
+{% endblock %}

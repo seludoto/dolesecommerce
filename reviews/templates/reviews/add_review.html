@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Write a Review - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .add-review-form {
+        background: white;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .product-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+    .product-details {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .product-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+    .star-rating {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .star-rating .star {
+        transition: color 0.2s;
+        margin: 0 5px;
+    }
+    .star-rating .star:hover,
+    .star-rating .star.active {
+        color: #ffa500;
+    }
+    .rating-text {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: 500;
+        color: #666;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        padding: 12px;
+    }
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    .btn {
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    .review-guidelines {
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 25px;
+    }
+    .guideline-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .guideline-item i {
+        color: #007bff;
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="add-review-form">
+                <h2 class="mb-4 text-center"><i class="fas fa-star"></i> Write a Review</h2>
+                
+                <!-- Product Information -->
+                <div class="product-info">
+                    <div class="product-details">
+                        <img src="{% if product.main_image %}{{ product.main_image.url }}{% else %}{% static 'images/no-image.png' %}{% endif %}" 
+                             alt="{{ product.name }}" class="product-image">
+                        <div>
+                            <h4 class="mb-1">{{ product.name }}</h4>
+                            <p class="text-muted mb-0">Category: {{ product.category.name|default:"Uncategorized" }}</p>
+                            <p class="text-muted mb-0">Price: ${{ product.price }}</p>
+                            {% if product.store %}
+                                <p class="text-muted mb-0">Sold by: {{ product.store.name }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Guidelines -->
+                <div class="review-guidelines">
+                    <h6><i class="fas fa-info-circle"></i> Review Guidelines</h6>
+                    <div class="guideline-item">
+                        <i class="fas fa-check"></i>
+                        <span>Be honest and helpful in your review</span>
+                    </div>
+                    <div class="guideline-item">
+                        <i class="fas fa-check"></i>
+                        <span>Focus on the product's features and your experience</span>
+                    </div>
+                    <div class="guideline-item">
+                        <i class="fas fa-check"></i>
+                        <span>Avoid inappropriate language or personal information</span>
+                    </div>
+                    <div class="guideline-item">
+                        <i class="fas fa-check"></i>
+                        <span>Your review will help other customers make informed decisions</span>
+                    </div>
+                </div>
+
+                <!-- Review Form -->
+                <form method="post" id="reviewForm">
+                    {% csrf_token %}
+                    
+                    <!-- Rating -->
+                    <div class="form-group">
+                        <label class="form-label text-center d-block"><strong>How would you rate this product?</strong></label>
+                        <div class="star-rating" id="starRating">
+                            {% for i in "12345" %}
+                                <span class="star" data-rating="{{ forloop.counter }}">
+                                    <i class="fas fa-star"></i>
+                                </span>
+                            {% endfor %}
+                        </div>
+                        <div class="rating-text" id="ratingText">Click on stars to rate</div>
+                        <input type="hidden" name="rating" id="ratingInput" required>
+                    </div>
+
+                    <!-- Review Title -->
+                    <div class="form-group">
+                        <label for="title" class="form-label">Review Title (Optional)</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               placeholder="Summarize your review in a few words">
+                        <small class="text-muted">Example: "Great quality and fast delivery"</small>
+                    </div>
+
+                    <!-- Review Comment -->
+                    <div class="form-group">
+                        <label for="comment" class="form-label"><strong>Your Review</strong></label>
+                        <textarea class="form-control" id="comment" name="comment" rows="6" 
+                                  placeholder="Tell other customers about your experience with this product..." required></textarea>
+                        <small class="text-muted">Minimum 10 characters. Share details about quality, value, shipping, etc.</small>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'products:product_detail' product.pk %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Product
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Review
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    const starRating = $('#starRating');
+    const ratingInput = $('#ratingInput');
+    const ratingText = $('#ratingText');
+    const stars = starRating.find('.star');
+    
+    const ratingTexts = {
+        1: '1 Star - Poor',
+        2: '2 Stars - Fair', 
+        3: '3 Stars - Good',
+        4: '4 Stars - Very Good',
+        5: '5 Stars - Excellent'
+    };
+    
+    // Update stars visual state
+    function updateStars(rating) {
+        stars.each(function(index) {
+            const star = $(this);
+            if (index < rating) {
+                star.addClass('active');
+            } else {
+                star.removeClass('active');
+            }
+        });
+        
+        if (rating > 0) {
+            ratingText.text(ratingTexts[rating]);
+        } else {
+            ratingText.text('Click on stars to rate');
+        }
+    }
+    
+    // Handle star clicks
+    stars.on('click', function() {
+        const rating = parseInt($(this).data('rating'));
+        ratingInput.val(rating);
+        updateStars(rating);
+    });
+    
+    // Handle star hover
+    stars.on('mouseenter', function() {
+        const rating = parseInt($(this).data('rating'));
+        updateStars(rating);
+    });
+    
+    // Reset to actual rating on mouse leave
+    starRating.on('mouseleave', function() {
+        const actualRating = parseInt(ratingInput.val()) || 0;
+        updateStars(actualRating);
+    });
+    
+    // Form validation
+    $('#reviewForm').on('submit', function(e) {
+        const rating = parseInt(ratingInput.val());
+        const comment = $('#comment').val().trim();
+        
+        if (!rating || rating < 1 || rating > 5) {
+            e.preventDefault();
+            alert('Please select a rating between 1 and 5 stars.');
+            return false;
+        }
+        
+        if (!comment || comment.length < 10) {
+            e.preventDefault();
+            alert('Please write a review with at least 10 characters.');
+            return false;
+        }
+        
+        // Show loading state
+        $(this).find('button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Submitting...');
+    });
+    
+    // Character counter for comment
+    $('#comment').on('input', function() {
+        const length = $(this).val().length;
+        const minLength = 10;
+        const remaining = Math.max(0, minLength - length);
+        
+        if (remaining > 0) {
+            $(this).next('.text-muted').text(`${remaining} more characters needed`);
+        } else {
+            $(this).next('.text-muted').text('Minimum length met. Share details about quality, value, shipping, etc.');
+        }
+    });
+});
+</script>
+{% endblock %}

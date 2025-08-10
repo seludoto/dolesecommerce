@@ -1,36 +1,188 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Administration{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-left: 4px solid;
+    }
+    
+    .stat-card.total { border-left-color: #007bff; }
+    .stat-card.pi-payments { border-left-color: #7B2CBF; }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .payment-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .table-header {
+        background: #f8f9fa;
+        padding: 20px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-completed { background: #d4edda; color: #155724; }
+    
+    .payment-method-badge {
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+    
+    .method-pi { background: linear-gradient(135deg, #7B2CBF, #C77DFF); color: white; }
+    .method-mpesa { background: #00a651; color: white; }
+</style>
+{% endblock %}
+
 {% block content %}
-  <h1>All Payments (Admin)</h1>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Order</th>
-        <th>User</th>
-        <th>Amount</th>
-        <th>Method</th>
-        <th>Status</th>
-        <th>Date</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for payment in payments %}
-        <tr>
-          <td>#{{ payment.order.id }}</td>
-          <td>{{ payment.order.user.username }}</td>
-          <td>${{ payment.amount }}</td>
-          <td>{{ payment.payment_method|title }}</td>
-          <td>{{ payment.status|title }}</td>
-          <td>{{ payment.created_at }}</td>
-          <td>
-            {% if payment.payment_method == 'pi_coin' and payment.status != 'completed' %}
-              <a href="{% url 'payments:confirm_pi_payment' payment.pk %}" class="btn btn-sm btn-warning">Confirm Pi</a>
-            {% endif %}
-          </td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="7">No payments found.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="container mt-4">
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="display-5 mb-2">Payment Administration</h1>
+                <p class="text-muted">Manage and monitor all payment transactions</p>
+            </div>
+            <div>
+                <a href="{% url 'payments:pi_rate_management' %}" class="btn btn-outline-primary me-2">
+                    <i class="fab fa-bitcoin me-2"></i>Pi Rates
+                </a>
+                <a href="/admin/payments/" class="btn btn-primary">
+                    <i class="fas fa-cog me-2"></i>Django Admin
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-cards">
+            <div class="stat-card total">
+                <div class="stat-value">{{ payments.count }}</div>
+                <div class="stat-label">Total Payments</div>
+            </div>
+            <div class="stat-card pi-payments">
+                <div class="stat-value">{{ pi_payments.count }}</div>
+                <div class="stat-label">Pi Payments</div>
+            </div>
+        </div>
+
+        <!-- Payments Table -->
+        <div class="payment-table">
+            <div class="table-header">
+                <h5 class="mb-0">Payment Transactions</h5>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order</th>
+                            <th>User</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <td><strong>#{{ payment.order.id }}</strong></td>
+                            <td>{{ payment.order.user.username }}</td>
+                            <td>
+                                <strong>${{ payment.amount|floatformat:2 }}</strong>
+                                {% if payment.pi_amount %}
+                                    <br><small class="text-muted">{{ payment.pi_amount|floatformat:7 }} π</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if payment.payment_method == 'pi_coin' %}
+                                    <span class="payment-method-badge method-pi">
+                                        <i class="fab fa-bitcoin me-1"></i>Pi Coin
+                                    </span>
+                                {% elif payment.payment_method == 'mpesa' %}
+                                    <span class="payment-method-badge method-mpesa">
+                                        <i class="fas fa-mobile-alt me-1"></i>M-Pesa
+                                    </span>
+                                {% else %}
+                                    {{ payment.payment_method|title }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if payment.status == 'pending' %}
+                                    <span class="status-badge status-pending">Pending</span>
+                                {% elif payment.status == 'completed' %}
+                                    <span class="status-badge status-completed">Completed</span>
+                                {% else %}
+                                    <span class="status-badge">{{ payment.status|title }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ payment.created_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                {% if payment.payment_method == 'pi_coin' and payment.status != 'completed' %}
+                                    <a href="{% url 'payments:confirm_pi_payment' payment.pk %}" 
+                                       class="btn btn-sm btn-success">
+                                        <i class="fas fa-check me-1"></i>Confirm Pi
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-info-circle text-muted me-2"></i>
+                                No payments found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

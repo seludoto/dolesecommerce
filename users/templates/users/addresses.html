@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Address Book - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <a href="{% url 'users:dashboard' %}" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h2 class="mb-1">Address Book</h2>
+                    <p class="text-muted mb-0">Manage your shipping and billing addresses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Current Address -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-map-marker-alt text-primary me-2"></i>Primary Address
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if profile.address %}
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="address-display">
+                                    <p class="mb-2"><strong>Address:</strong></p>
+                                    <p class="text-muted">{{ profile.address }}</p>
+                                    <p class="mb-1"><strong>Country:</strong> {{ profile.country|default:"Not specified" }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <button class="btn btn-outline-primary btn-sm" onclick="toggleEditMode()">
+                                    <i class="fas fa-edit me-1"></i>Edit Address
+                                </button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-map-marker-alt text-muted mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="text-muted">No address added</h5>
+                            <p class="text-muted">Add your primary address for faster checkout</p>
+                            <button class="btn btn-primary" onclick="toggleEditMode()">
+                                <i class="fas fa-plus me-1"></i>Add Address
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Edit Form (Hidden by default) -->
+            <div class="card border-0 shadow-sm" id="edit-form" style="display: none;">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit text-success me-2"></i>Edit Address
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="address" class="form-label">Full Address</label>
+                                <textarea class="form-control" id="address" name="address" rows="3" 
+                                          placeholder="Enter your complete address">{{ profile.address }}</textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="country" class="form-label">Country</label>
+                                <select class="form-select" id="country" name="country">
+                                    <option value="">Select Country</option>
+                                    <option value="Tanzania" {% if profile.country == "Tanzania" %}selected{% endif %}>Tanzania</option>
+                                    <option value="Kenya" {% if profile.country == "Kenya" %}selected{% endif %}>Kenya</option>
+                                    <option value="Uganda" {% if profile.country == "Uganda" %}selected{% endif %}>Uganda</option>
+                                    <option value="Rwanda" {% if profile.country == "Rwanda" %}selected{% endif %}>Rwanda</option>
+                                    <option value="Burundi" {% if profile.country == "Burundi" %}selected{% endif %}>Burundi</option>
+                                    <option value="Nigeria" {% if profile.country == "Nigeria" %}selected{% endif %}>Nigeria</option>
+                                    <option value="Ghana" {% if profile.country == "Ghana" %}selected{% endif %}>Ghana</option>
+                                    <option value="South Africa" {% if profile.country == "South Africa" %}selected{% endif %}>South Africa</option>
+                                    <option value="Other" {% if profile.country == "Other" %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-1"></i>Save Address
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="toggleEditMode()">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address Tips -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>Address Tips
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="small text-muted">
+                        <div class="mb-3">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Include complete details:</strong> Street number, building name, and landmarks
+                        </div>
+                        <div class="mb-3">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Add contact number:</strong> Include your phone number for delivery coordination
+                        </div>
+                        <div class="mb-3">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Specify delivery instructions:</strong> Gate codes, floor numbers, etc.
+                        </div>
+                        <div class="mb-0">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Keep it updated:</strong> Ensure your address is current for successful deliveries
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'users:profile' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-user me-1"></i>Profile Settings
+                        </a>
+                        <a href="{% url 'orders:order_history' %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-box me-1"></i>Order History
+                        </a>
+                        <a href="{% url 'core:help' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-question-circle me-1"></i>Help Center
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleEditMode() {
+    const editForm = document.getElementById('edit-form');
+    const isHidden = editForm.style.display === 'none';
+    
+    if (isHidden) {
+        editForm.style.display = 'block';
+        editForm.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        editForm.style.display = 'none';
+    }
+}
+
+// Auto-hide edit form after successful save
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if there are any Django messages indicating successful save
+    const messages = document.querySelectorAll('.alert');
+    if (messages.length > 0) {
+        const editForm = document.getElementById('edit-form');
+        editForm.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

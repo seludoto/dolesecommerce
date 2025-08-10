@@ -1,35 +1,283 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class="row align-items-center mb-5">
-  <div class="col-md-7">
-    <h1 class="display-4 fw-bold">Welcome to dolesecommerce</h1>
-    <p class="lead">Discover the best products, pay with M-Pesa or Pi Coin, and enjoy a seamless shopping experience.</p>
-    <a href="/products/" class="btn btn-lg btn-success me-2">Shop Now</a>
-    {% if not request.user.is_authenticated %}
-      <a href="/users/register/" class="btn btn-outline-light btn-lg">Register</a>
-    {% endif %}
-  </div>
-  <div class="col-md-5 text-center">
-    <img src="https://images.unsplash.com/photo-1515168833906-d2a3b82b1a48?auto=format&fit=crop&w=400&q=80" class="img-fluid rounded shadow" alt="Shopping">
-  </div>
-</div>
+{% load static %}
+{% load currency_tags %}
 
-<h2 class="mb-4">Featured Products</h2>
-<div class="row row-cols-1 row-cols-md-3 g-4">
-  {% for product in products|slice:":3" %}
-    <div class="col">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">{{ product.name }}</h5>
-          <p class="card-text">{{ product.description|truncatechars:80 }}</p>
-        </div>
-        <div class="card-footer bg-white border-0">
-          <a href="/products/{{ product.pk }}/" class="btn btn-primary">View</a>
+{% block title %}Dolese E-Commerce - Modern Multi-Vendor Marketplace{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+  <div class="hero-overlay"></div>
+  <div class="row align-items-center position-relative" style="z-index: 2;">
+    <div class="col-lg-7 text-white">
+      <h1 class="display-4 fw-bold mb-3" style="text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+        Welcome to <span style="color: #ffd700;">dolesecommerce</span>
+      </h1>
+      <p class="lead mb-3" style="font-size: 1.2rem; opacity: 0.95;">
+        Tanzania's modern marketplace where you can shop with M-Pesa & Pi Coin payments.
+      </p>
+      <div class="hero-buttons">
+        <a href="/products/" class="btn btn-lg me-3" style="background: #ffd700; color: #2c3e50; border: none; border-radius: 50px; padding: 12px 30px; font-weight: 600; text-decoration: none; box-shadow: 0 8px 25px rgba(255,215,0,0.4); transition: all 0.3s ease;">
+          <i class="fas fa-shopping-bag me-2"></i>Shop Now
+        </a>
+        {% if not request.user.is_authenticated %}
+          <a href="/users/register/" class="btn btn-outline-light btn-lg" style="border: 2px solid white; border-radius: 50px; padding: 12px 30px; font-weight: 600; text-decoration: none; transition: all 0.3s ease;">
+            <i class="fas fa-user-plus me-2"></i>Join Us
+          </a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-lg-5 text-center">
+      <div class="hero-image" style="position: relative;">
+        <img src="https://images.unsplash.com/photo-1515168833906-d2a3b82b1a48?auto=format&fit=crop&w=500&q=80" 
+             class="img-fluid rounded-3 shadow-lg" alt="Shopping Experience"
+             style="border: 5px solid rgba(255,255,255,0.2); transform: rotate(-2deg); transition: transform 0.3s ease;">
+        <div class="floating-badge" style="position: absolute; top: -10px; right: -10px; background: #ff6b6b; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(255,107,107,0.4);">
+          New!
         </div>
       </div>
     </div>
-  {% empty %}
-    <div class="col"><div class="alert alert-info">No products available yet.</div></div>
-  {% endfor %}
+  </div>
 </div>
+
+<!-- Features Section -->
+<div class="features-section mb-5">
+  <div class="row text-center mb-5">
+    <div class="col-12">
+      <h2 class="display-5 fw-bold mb-3" style="color: #2c3e50;">Why Choose DoleseCommerce?</h2>
+      <p class="lead text-muted">Experience the best in online shopping with our cutting-edge features</p>
+    </div>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="feature-card text-center p-4" style="background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s ease; height: 100%;">
+        <div class="feature-icon mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, #1de9b6, #00d4aa); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+          <i class="fas fa-mobile-alt text-white" style="font-size: 2rem;"></i>
+        </div>
+        <h4 class="fw-bold mb-3" style="color: #2c3e50;">M-Pesa & Pi Coin</h4>
+        <p class="text-muted">Secure mobile payments with M-Pesa and innovative Pi Coin cryptocurrency support for modern transactions.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="feature-card text-center p-4" style="background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s ease; height: 100%;">
+        <div class="feature-icon mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+          <i class="fas fa-truck text-white" style="font-size: 2rem;"></i>
+        </div>
+        <h4 class="fw-bold mb-3" style="color: #2c3e50;">Fast Delivery</h4>
+        <p class="text-muted">Quick and reliable delivery across Tanzania with real-time tracking and professional handling of your orders.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="feature-card text-center p-4" style="background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s ease; height: 100%;">
+        <div class="feature-icon mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, #ff6b6b, #ee5a24); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+          <i class="fas fa-shield-alt text-white" style="font-size: 2rem;"></i>
+        </div>
+        <h4 class="fw-bold mb-3" style="color: #2c3e50;">Secure Shopping</h4>
+        <p class="text-muted">Advanced security measures, buyer protection, and secure payment processing for worry-free shopping.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Featured Products Section -->
+<div class="products-section">
+  <div class="row align-items-center mb-4">
+    <div class="col-md-8">
+      <h2 class="display-6 fw-bold mb-2" style="color: #2c3e50;">
+        <i class="fas fa-star text-warning me-2"></i>Featured Products
+      </h2>
+      <p class="text-muted mb-0">Discover our handpicked selection of amazing products</p>
+    </div>
+    <div class="col-md-4 text-end">
+      <a href="/products/" class="btn btn-outline-primary" style="border-radius: 50px; padding: 10px 25px; font-weight: 600;">
+        View All Products <i class="fas fa-arrow-right ms-2"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for product in products|slice:":6" %}
+      <div class="col">
+        <div class="product-card h-100" style="background: white; border: none; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); transition: all 0.3s ease;">
+          <div class="product-image" style="height: 200px; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); position: relative; overflow: hidden;">
+            {% if product.main_image %}
+              <img src="{{ product.main_image.url }}" alt="{{ product.name }}" 
+                   style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
+            {% else %}
+              <div class="d-flex align-items-center justify-content-center h-100">
+                <div class="text-center">
+                  <i class="fas fa-image text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+                  <p class="text-muted mt-2 mb-0">No Image</p>
+                </div>
+              </div>
+            {% endif %}
+            <div class="product-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.1); opacity: 0; transition: opacity 0.3s ease;"></div>
+          </div>
+          <div class="card-body p-4">
+            <h5 class="card-title fw-bold mb-2" style="color: #2c3e50; line-height: 1.3;">{{ product.name }}</h5>
+            <p class="card-text text-muted mb-3" style="font-size: 0.95rem;">{{ product.description|truncatechars:80 }}</p>
+            {% if product.price %}
+              <div class="price-section mb-3">
+                <span class="h5 fw-bold" style="color: #1de9b6;">{% product_price product %}</span>
+                {% if product.compare_price and product.compare_price > product.price %}
+                  <span class="text-muted text-decoration-line-through ms-2">{% product_compare_price product %}</span>
+                  <span class="badge bg-danger ms-2">-{{ product.discount_percentage|floatformat:0 }}%</span>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="card-footer bg-transparent border-0 p-4 pt-0">
+            <div class="d-grid">
+              <a href="/products/{{ product.pk }}/" class="btn btn-primary" style="border-radius: 50px; font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); border: none; transition: all 0.3s ease;">
+                <i class="fas fa-eye me-2"></i>View Details
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="text-center py-5" style="background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
+          <i class="fas fa-box-open text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+          <h4 class="mt-3 mb-2" style="color: #2c3e50;">No Products Available</h4>
+          <p class="text-muted">Check back soon for amazing products!</p>
+          {% if request.user.is_staff %}
+            <a href="/admin/" class="btn btn-outline-primary mt-3" style="border-radius: 50px;">
+              <i class="fas fa-plus me-2"></i>Add Products
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Call to Action Section -->
+{% if not request.user.is_authenticated %}
+<div class="cta-section mt-5">
+  <div class="row">
+    <div class="col-12">
+      <div class="cta-card text-center p-5" style="background: linear-gradient(135deg, #1de9b6, #00d4aa); border-radius: 20px; color: white; position: relative; overflow: hidden;">
+        <div class="cta-background"></div>
+        <div class="position-relative" style="z-index: 2;">
+          <h3 class="display-6 fw-bold mb-3">Ready to Start Shopping?</h3>
+          <p class="lead mb-4">Join thousands of satisfied customers and discover amazing deals today!</p>
+          <a href="/users/register/" class="btn btn-light btn-lg me-3" style="color: #1de9b6; border-radius: 50px; padding: 15px 35px; font-weight: 600; box-shadow: 0 8px 25px rgba(255,255,255,0.3);">
+            <i class="fas fa-user-plus me-2"></i>Create Account
+          </a>
+          <a href="/users/login/" class="btn btn-outline-light btn-lg" style="border: 2px solid white; border-radius: 50px; padding: 15px 35px; font-weight: 600;">
+            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<style>
+/* CTA Background Pattern */
+.cta-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'25\' cy=\'25\' r=\'2\' fill=\'rgba(255,255,255,0.1)\'/%3E%3Ccircle cx=\'75\' cy=\'75\' r=\'3\' fill=\'rgba(255,255,255,0.1)\'/%3E%3Ccircle cx=\'80\' cy=\'20\' r=\'1\' fill=\'rgba(255,255,255,0.1)\'/%3E%3C/svg%3E');
+  opacity: 0.3;
+}
+
+/* Hero Section Improvements */
+.hero-section {
+  background: linear-gradient(135deg, #ff9a56 0%, #f0ced5 100%);
+  border-radius: 20px;
+  padding: 40px 30px;
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.2);
+  border-radius: 20px;
+}
+
+/* Hover Effects */
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12) !important;
+}
+
+.product-card:hover .product-overlay {
+  opacity: 1;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.hero-image img:hover {
+  transform: rotate(0deg) scale(1.05);
+}
+
+.hero-buttons a:hover {
+  transform: translateY(-3px);
+}
+
+/* New friendly color hover effects */
+.hero-buttons a:first-child:hover {
+  background: #ffed4e !important;
+  box-shadow: 0 12px 35px rgba(255,215,0,0.5) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 30px 20px !important;
+  }
+  
+  .display-4 {
+    font-size: 2.2rem !important;
+  }
+  
+  .feature-card {
+    margin-bottom: 20px;
+  }
+}
+
+/* Animation for elements */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feature-card, .product-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.feature-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.feature-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+</style>
+
 {% endblock %}

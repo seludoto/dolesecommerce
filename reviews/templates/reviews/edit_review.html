@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Review - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-review-form {
+        background: white;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .product-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+    .product-details {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+    .star-rating {
+        font-size: 1.5rem;
+        color: #ddd;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+    .star-rating .star {
+        transition: color 0.2s;
+    }
+    .star-rating .star:hover,
+    .star-rating .star.active {
+        color: #ffa500;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        padding: 12px;
+    }
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    .btn {
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    .current-rating {
+        background: #e3f2fd;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="edit-review-form">
+                <h2 class="mb-4"><i class="fas fa-edit"></i> Edit Review</h2>
+                
+                <!-- Product Information -->
+                <div class="product-info">
+                    <div class="product-details">
+                        <img src="{% if review.product.main_image %}{{ review.product.main_image.url }}{% else %}{% static 'images/no-image.png' %}{% endif %}" 
+                             alt="{{ review.product.name }}" class="product-image">
+                        <div>
+                            <h5 class="mb-1">{{ review.product.name }}</h5>
+                            <p class="text-muted mb-0">Category: {{ review.product.category.name|default:"Uncategorized" }}</p>
+                            <p class="text-muted mb-0">Price: ${{ review.product.price }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Rating Display -->
+                <div class="current-rating">
+                    <strong>Current Rating:</strong> 
+                    <span class="text-warning">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= review.rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        ({{ review.rating }}/5)
+                    </span>
+                </div>
+
+                <!-- Edit Form -->
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Rating -->
+                    <div class="form-group">
+                        <label for="rating" class="form-label"><strong>Rating</strong></label>
+                        <div class="star-rating" id="starRating">
+                            {% for i in "12345" %}
+                                <span class="star" data-rating="{{ forloop.counter }}">
+                                    <i class="fas fa-star"></i>
+                                </span>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="rating" id="ratingInput" value="{{ review.rating }}" required>
+                        <small class="text-muted">Click on stars to rate the product</small>
+                    </div>
+
+                    <!-- Review Title -->
+                    <div class="form-group">
+                        <label for="title" class="form-label">Review Title (Optional)</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               value="{{ review.title }}" placeholder="Brief summary of your review">
+                    </div>
+
+                    <!-- Review Comment -->
+                    <div class="form-group">
+                        <label for="comment" class="form-label"><strong>Review</strong></label>
+                        <textarea class="form-control" id="comment" name="comment" rows="6" 
+                                  placeholder="Share your experience with this product..." required>{{ review.comment }}</textarea>
+                        <small class="text-muted">Please provide honest feedback to help other customers</small>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'reviews:my_reviews' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to My Reviews
+                        </a>
+                        <div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Review
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    const starRating = $('#starRating');
+    const ratingInput = $('#ratingInput');
+    const stars = starRating.find('.star');
+    
+    // Initialize stars based on current rating
+    function updateStars(rating) {
+        stars.each(function(index) {
+            const star = $(this);
+            if (index < rating) {
+                star.addClass('active');
+            } else {
+                star.removeClass('active');
+            }
+        });
+    }
+    
+    // Set initial rating
+    updateStars(parseInt(ratingInput.val()));
+    
+    // Handle star clicks
+    stars.on('click', function() {
+        const rating = parseInt($(this).data('rating'));
+        ratingInput.val(rating);
+        updateStars(rating);
+    });
+    
+    // Handle star hover
+    stars.on('mouseenter', function() {
+        const rating = parseInt($(this).data('rating'));
+        updateStars(rating);
+    });
+    
+    // Reset to actual rating on mouse leave
+    starRating.on('mouseleave', function() {
+        const actualRating = parseInt(ratingInput.val());
+        updateStars(actualRating);
+    });
+    
+    // Form validation
+    $('form').on('submit', function(e) {
+        const rating = parseInt(ratingInput.val());
+        const comment = $('#comment').val().trim();
+        
+        if (!rating || rating < 1 || rating > 5) {
+            e.preventDefault();
+            alert('Please select a rating between 1 and 5 stars.');
+            return false;
+        }
+        
+        if (!comment) {
+            e.preventDefault();
+            alert('Please write a review comment.');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Coupons - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <a href="{% url 'users:dashboard' %}" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h2 class="mb-1">My Coupons & Promo Codes</h2>
+                    <p class="text-muted mb-0">Manage your discounts and savings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Coupons -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-gift text-success me-2"></i>Available Coupons
+            </h4>
+            {% if available_coupons %}
+                <div class="row g-3">
+                    {% for coupon in available_coupons %}
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                                <div class="card-body text-white">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h5 class="mb-0">{{ coupon.code }}</h5>
+                                        <span class="badge bg-light text-dark">{{ coupon.get_discount_type_display }}</span>
+                                    </div>
+                                    <p class="mb-2">{{ coupon.description }}</p>
+                                    <div class="mb-3">
+                                        {% if coupon.discount_type == 'PERCENTAGE' %}
+                                            <h3 class="mb-0">{{ coupon.discount_value|floatformat:0 }}% OFF</h3>
+                                        {% elif coupon.discount_type == 'FIXED' %}
+                                            <h3 class="mb-0">${{ coupon.discount_value|floatformat:2 }} OFF</h3>
+                                        {% else %}
+                                            <h3 class="mb-0">{{ coupon.get_discount_type_display }}</h3>
+                                        {% endif %}
+                                    </div>
+                                    <div class="small opacity-75">
+                                        <p class="mb-1">Min. order: ${{ coupon.minimum_order|floatformat:2 }}</p>
+                                        <p class="mb-1">Valid until: {{ coupon.valid_until|date:"M d, Y" }}</p>
+                                        {% if coupon.usage_limit %}
+                                            <p class="mb-0">Uses remaining: {{ coupon.usage_limit|add:coupon.used_count|add:"-"|add:coupon.used_count }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mt-3">
+                                        <button class="btn btn-light btn-sm" onclick="copyToClipboard('{{ coupon.code }}')">
+                                            <i class="fas fa-copy me-1"></i>Copy Code
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-gift text-muted mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="text-muted">No coupons available</h5>
+                    <p class="text-muted">Check back later for new deals!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Used Coupons -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-history text-info me-2"></i>Recently Used
+            </h4>
+            {% if used_coupons %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Coupon Code</th>
+                                <th>Description</th>
+                                <th>Discount</th>
+                                <th>Used On</th>
+                                <th>Savings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for used_coupon in used_coupons %}
+                                <tr>
+                                    <td><code>{{ used_coupon.promo_code.code }}</code></td>
+                                    <td>{{ used_coupon.promo_code.description }}</td>
+                                    <td>
+                                        {% if used_coupon.promo_code.discount_type == 'PERCENTAGE' %}
+                                            {{ used_coupon.promo_code.discount_value|floatformat:0 }}%
+                                        {% else %}
+                                            ${{ used_coupon.promo_code.discount_value|floatformat:2 }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ used_coupon.applied_at|date:"M d, Y" }}</td>
+                                    <td class="text-success fw-bold">${{ used_coupon.discount_amount|floatformat:2 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-history text-muted mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="text-muted">No used coupons</h5>
+                    <p class="text-muted">Your coupon usage history will appear here</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success message
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 10px 20px; border-radius: 5px; z-index: 9999;';
+        toast.textContent = 'Coupon code copied!';
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

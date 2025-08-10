@@ -1,7 +1,472 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Registry - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .registry-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .registry-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .registry-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .registry-stats {
+        background: #f8f9fa;
+        padding: 40px 0;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+        display: block;
+    }
+    
+    .registry-form {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .form-floating label {
+        color: #6c757d;
+    }
+    
+    .btn-registry {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-registry:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: white;
+        font-size: 24px;
+    }
+    
+    .search-section {
+        background: #fff;
+        border-radius: 15px;
+        padding: 30px;
+        margin: 30px 0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .user-card {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .user-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+    }
+    
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+    }
+    
+    .badge-registry {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 5px 12px;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5 text-center">
-  <h2>Registry</h2>
-  <p>Registry information will appear here.</p>
-</div>
+<!-- Hero Section -->
+<section class="registry-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4 fw-bold mb-4">User Registry</h1>
+                <p class="lead mb-4">Connect with fellow shoppers, share experiences, and build a community of trusted buyers and sellers.</p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <a href="#register" class="btn btn-light btn-lg">Join Registry</a>
+                    <a href="#search" class="btn btn-outline-light btn-lg">Find Users</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="registry-stats">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ total_users|default:"1,250" }}</span>
+                    <span class="text-muted">Registered Users</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ active_users|default:"890" }}</span>
+                    <span class="text-muted">Active This Month</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ total_reviews|default:"3,450" }}</span>
+                    <span class="text-muted">Reviews Posted</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ verified_buyers|default:"720" }}</span>
+                    <span class="text-muted">Verified Buyers</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Registration Form -->
+            <div class="col-lg-6">
+                <div class="registry-form" id="register">
+                    <h3 class="mb-4">Join Our Registry</h3>
+                    {% if user.is_authenticated %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            You're already registered! Update your profile below.
+                        </div>
+                        <form method="post" action="{% url 'users:update_profile' %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                                               value="{{ user.first_name }}" placeholder="First Name">
+                                        <label for="first_name">First Name</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="last_name" name="last_name" 
+                                               value="{{ user.last_name }}" placeholder="Last Name">
+                                        <label for="last_name">Last Name</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ user.email }}" placeholder="Email">
+                                <label for="email">Email Address</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" id="bio" name="bio" style="height: 100px" 
+                                          placeholder="Bio">{{ user.userprofile.bio|default:'' }}</textarea>
+                                <label for="bio">Bio (Optional)</label>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="public_profile" 
+                                           name="public_profile" {% if user.userprofile.is_public %}checked{% endif %}>
+                                    <label class="form-check-label" for="public_profile">
+                                        Make my profile visible in registry
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-registry w-100">
+                                <i class="fas fa-save me-2"></i>Update Profile
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Please <a href="{% url 'users:login' %}">login</a> or 
+                            <a href="{% url 'users:register' %}">register</a> to join our user registry.
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'users:register' %}" class="btn btn-registry">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
+                            </a>
+                            <a href="{% url 'users:login' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Features -->
+            <div class="col-lg-6">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="registry-card h-100 p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h5>Connect</h5>
+                            <p class="text-muted">Build connections with other shoppers and share experiences.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="registry-card h-100 p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h5>Reviews</h5>
+                            <p class="text-muted">Read and write authentic reviews from verified buyers.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="registry-card h-100 p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h5>Trust</h5>
+                            <p class="text-muted">Verified profiles and transaction history for trusted shopping.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="registry-card h-100 p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <h5>Rewards</h5>
+                            <p class="text-muted">Earn points and badges for active participation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- User Search Section -->
+<section class="py-5 bg-light" id="search">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="search-section">
+                    <h3 class="text-center mb-4">Find Registry Members</h3>
+                    <form method="get" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="search" name="search" 
+                                           value="{{ request.GET.search }}" placeholder="Search users...">
+                                    <label for="search">Search by name or username</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-registry w-100 h-100">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- User Results -->
+                    <div class="row">
+                        {% for profile in public_profiles %}
+                            <div class="col-md-6">
+                                <div class="user-card">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-3">
+                                            {{ profile.user.first_name|first|default:profile.user.username|first|upper }}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                {{ profile.user.get_full_name|default:profile.user.username }}
+                                                {% if profile.is_verified %}
+                                                    <i class="fas fa-check-circle text-primary" title="Verified User"></i>
+                                                {% endif %}
+                                            </h6>
+                                            <p class="text-muted small mb-1">
+                                                Member since {{ profile.user.date_joined|date:"M Y" }}
+                                            </p>
+                                            {% if profile.bio %}
+                                                <p class="small text-muted mb-0">{{ profile.bio|truncatewords:15 }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <span class="badge-registry me-2">
+                                            {{ profile.user.review_set.count }} Reviews
+                                        </span>
+                                        {% if profile.user.order_set.count %}
+                                            <span class="badge-registry">
+                                                {{ profile.user.order_set.count }} Orders
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="col-12">
+                                <div class="text-center py-4">
+                                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No public profiles found</h5>
+                                    <p class="text-muted">Be the first to make your profile public!</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Community Guidelines -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="registry-card p-4">
+                    <h4 class="mb-3">Community Guidelines</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check text-success me-2"></i>Do's</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-angle-right text-muted me-2"></i>Be respectful and courteous</li>
+                                <li><i class="fas fa-angle-right text-muted me-2"></i>Write honest reviews</li>
+                                <li><i class="fas fa-angle-right text-muted me-2"></i>Help other shoppers</li>
+                                <li><i class="fas fa-angle-right text-muted me-2"></i>Keep profile information accurate</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-times text-danger me-2"></i>Don'ts</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-angle-right text-muted me-2"></i>Post fake reviews</li>
+                                <li><i class="fas fa-angle-right text-muted me-2"></i>Spam or harass others</li>
+                                <li><i class="fas fa-angle-right text-muted me-2"></i>Share personal contact info</li>
+                                <li><i class="fas fa-angle-right text-muted me-2"></i>Violate terms of service</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Smooth scrolling for anchor links
+    $('a[href^="#"]').on('click', function(event) {
+        var target = $(this.getAttribute('href'));
+        if( target.length ) {
+            event.preventDefault();
+            $('html, body').stop().animate({
+                scrollTop: target.offset().top - 100
+            }, 1000);
+        }
+    });
+    
+    // Form validation
+    $('form').on('submit', function(e) {
+        var isValid = true;
+        
+        // Check required fields
+        $(this).find('input[required], textarea[required]').each(function() {
+            if (!$(this).val().trim()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        // Email validation
+        var emailField = $(this).find('input[type="email"]');
+        if (emailField.length) {
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailField.val())) {
+                isValid = false;
+                emailField.addClass('is-invalid');
+            }
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            showToast('Please fill in all required fields correctly', 'error');
+        }
+    });
+    
+    // Auto-hide alerts
+    $('.alert').delay(5000).fadeOut();
+});
+
+function showToast(message, type = 'info') {
+    const toast = $(`
+        <div class="toast align-items-center text-white bg-${type === 'error' ? 'danger' : 'primary'} border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `);
+    
+    $('#toast-container').append(toast);
+    const bsToast = new bootstrap.Toast(toast[0]);
+    bsToast.show();
+    
+    toast.on('hidden.bs.toast', function() {
+        $(this).remove();
+    });
+}
+</script>
 {% endblock %}

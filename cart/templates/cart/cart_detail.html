@@ -1,0 +1,579 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - dolesecommerce{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Shopping Cart ({{ cart.total_items }} items)</h4>
+                </div>
+                <div class="card-body">
+                    {% if cart.items.all %}
+                        {% for item in cart.items.all %}
+                        <div class="cart-item row align-items-center border-bottom py-3" data-item-id="{{ item.id }}">
+                            <div class="col-md-2">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" class="img-fluid rounded" alt="{{ item.product.name }}">
+                                {% else %}
+                                    <div class="placeholder-image bg-light d-flex align-items-center justify-content-center rounded" style="height: 80px;">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="mb-1">{{ item.product.name }}</h6>
+                                <small class="text-muted">{{ item.product.brand.name }}</small>
+                                {% if item.size %}<div><small><strong>Size:</strong> {{ item.size }}</small></div>{% endif %}
+                                {% if item.color %}<div><small><strong>Color:</strong> {{ item.color }}</small></div>{% endif %}
+                                {% if item.product.is_low_stock %}
+                                    <div class="badge bg-warning text-dark mt-1">Low Stock</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2">
+                                <div class="input-group input-group-sm">
+                                    <button class="btn btn-outline-secondary decrease-qty" type="button" data-item-id="{{ item.id }}">-</button>
+                                    <input type="number" class="form-control text-center quantity-input" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" data-item-id="{{ item.id }}">
+                                    <button class="btn btn-outline-secondary increase-qty" type="button" data-item-id="{{ item.id }}">+</button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <div class="price">
+                                    {% if item.product.compare_price %}
+                                        <small class="text-muted text-decoration-line-through">${{ item.product.compare_price }}</small><br>
+                                    {% endif %}
+                                    <strong>${{ item.product.price }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <strong class="item-total">${{ item.total_price|floatformat:2 }}</strong>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-secondary save-later" data-item-id="{{ item.id }}">
+                                        <i class="fas fa-heart"></i> Save
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger remove-item" data-item-id="{{ item.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Recommended Products -->
+                        <div class="mt-4">
+                            <h6>You might also like:</h6>
+                            <div class="row">
+                                {% for product in recommended_products %}
+                                <div class="col-md-3 mb-3">
+                                    <div class="card h-100">
+                                        {% if product.image %}
+                                            <img src="{{ product.image.url }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="{{ product.name }}">
+                                        {% endif %}
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title small">{{ product.name|truncatechars:30 }}</h6>
+                                            <p class="card-text small">${{ product.price }}</p>
+                                            <button class="btn btn-sm btn-primary add-to-cart" data-product-id="{{ product.id }}">
+                                                Add to Cart
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h5>Your cart is empty</h5>
+                            <p class="text-muted">Add some products to get started!</p>
+                            <a href="{% url 'products:product_list' %}" class="btn btn-primary">Continue Shopping</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Saved for Later Section -->
+            {% if saved_items %}
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Saved for Later ({{ saved_items|length }} items)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for item in saved_items %}
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" class="me-3 rounded" style="width: 60px; height: 60px; object-fit: cover;" alt="{{ item.product.name }}">
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ item.product.name }}</h6>
+                                    <p class="mb-1">${{ item.product.price }}</p>
+                                    <button class="btn btn-sm btn-outline-primary move-to-cart" data-product-id="{{ item.product.id }}">
+                                        Move to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header">
+                    <h6 class="mb-0">Order Summary</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">${{ cart.total_price|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping:</span>
+                        <span id="shipping">$5.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax:</span>
+                        <span id="tax">${{ cart.total_price|floatformat:2|add:"0.08"|floatformat:2 }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total:</strong>
+                        <strong id="total">${{ cart.total_price|add:"5"|floatformat:2 }}</strong>
+                    </div>
+
+                    <!-- Promo Code -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Promo code" id="promoCode">
+                            <button class="btn btn-outline-secondary" type="button" id="applyPromo">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods Preview -->
+                    <div class="mb-3">
+                        <small class="text-muted">We accept:</small>
+                        <div class="mt-1">
+                            <i class="fab fa-cc-visa fa-2x me-2 text-primary"></i>
+                            <i class="fab fa-cc-mastercard fa-2x me-2 text-warning"></i>
+                            <i class="fab fa-paypal fa-2x me-2 text-primary"></i>
+                            <span class="badge bg-info">M-Pesa</span>
+                            <span class="badge bg-warning">Pi Coin</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-lock me-2"></i>Secure Checkout
+                        </a>
+                        <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary">
+                            Continue Shopping
+                        </a>
+                    </div>
+
+                    <!-- Security Icons -->
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-shield-alt me-1"></i>256-bit SSL Encryption
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recently Viewed -->
+            {% if recently_viewed %}
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Recently Viewed</h6>
+                </div>
+                <div class="card-body">
+                    {% for item in recently_viewed %}
+                    <div class="d-flex mb-3">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;" alt="{{ item.product.name }}">
+                        {% endif %}
+                        <div>
+                            <h6 class="mb-1 small">{{ item.product.name|truncatechars:25 }}</h6>
+                            <p class="mb-0 small text-muted">${{ item.product.price }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Cart Update Modal -->
+<div class="modal fade" id="cartUpdateModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 mb-0">Updating cart...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Quantity update functions
+    $('.increase-qty').click(function() {
+        const itemId = $(this).data('item-id');
+        const input = $(`.quantity-input[data-item-id="${itemId}"]`);
+        const currentQty = parseInt(input.val());
+        const maxQty = parseInt(input.attr('max'));
+        
+        if (currentQty < maxQty) {
+            input.val(currentQty + 1);
+            updateCartItem(itemId, currentQty + 1);
+        }
+    });
+
+    $('.decrease-qty').click(function() {
+        const itemId = $(this).data('item-id');
+        const input = $(`.quantity-input[data-item-id="${itemId}"]`);
+        const currentQty = parseInt(input.val());
+        
+        if (currentQty > 1) {
+            input.val(currentQty - 1);
+            updateCartItem(itemId, currentQty - 1);
+        }
+    });
+
+    $('.quantity-input').change(function() {
+        const itemId = $(this).data('item-id');
+        const quantity = parseInt($(this).val());
+        updateCartItem(itemId, quantity);
+    });
+
+    // Remove item
+    $('.remove-item').click(function() {
+        const itemId = $(this).data('item-id');
+        if (confirm('Remove this item from cart?')) {
+            removeCartItem(itemId);
+        }
+    });
+
+    // Save for later
+    $('.save-later').click(function() {
+        const itemId = $(this).data('item-id');
+        saveForLater(itemId);
+    });
+
+    // Move to cart from saved
+    $('.move-to-cart').click(function() {
+        const productId = $(this).data('product-id');
+        moveToCart(productId);
+    });
+
+    // Add recommended product to cart
+    $('.add-to-cart').click(function() {
+        const productId = $(this).data('product-id');
+        addToCart(productId);
+    });
+
+    // Apply promo code
+    $('#applyPromo').click(function() {
+        const promoCode = $('#promoCode').val();
+        applyPromoCode(promoCode);
+    });
+
+    function updateCartItem(itemId, quantity) {
+        $('#cartUpdateModal').modal('show');
+        
+        $.ajax({
+            url: `/cart/update/${itemId}/`,
+            method: 'POST',
+            data: {
+                'quantity': quantity,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('Error updating cart');
+                }
+            },
+            error: function() {
+                alert('Error updating cart');
+            },
+            complete: function() {
+                $('#cartUpdateModal').modal('hide');
+            }
+        });
+    }
+
+    function removeCartItem(itemId) {
+        $.ajax({
+            url: `/cart/remove/${itemId}/`,
+            method: 'POST',
+            data: {
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    function saveForLater(itemId) {
+        $.ajax({
+            url: `/cart/save-later/${itemId}/`,
+            method: 'POST',
+            data: {
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    function moveToCart(productId) {
+        $.ajax({
+            url: `/cart/move-to-cart/${productId}/`,
+            method: 'POST',
+            data: {
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    function addToCart(productId) {
+        $.ajax({
+            url: `/cart/add/`,
+            method: 'POST',
+            data: {
+                'product_id': productId,
+                'quantity': 1,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert(response.message || 'Error adding to cart');
+                }
+            }
+        });
+    }
+
+    function applyPromoCode(code) {
+        $.ajax({
+            url: `/cart/apply-promo/`,
+            method: 'POST',
+            data: {
+                'promo_code': code,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert(response.message || 'Invalid promo code');
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <h1 class="mb-4">
+        <i class="fas fa-shopping-cart"></i> Shopping Cart
+        {% if cart_items %}
+            <span class="badge badge-primary">{{ total_items }} item{{ total_items|pluralize }}</span>
+        {% endif %}
+    </h1>
+
+    {% if cart_items %}
+        <div class="cart-items">
+            {% for item in cart_items %}
+                <div class="cart-item">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                    {% else %}
+                        <div style="width: 100px; height: 100px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                            <i class="fas fa-image text-muted"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="item-details">
+                        <div class="item-name">{{ item.product.name }}</div>
+                        <div class="item-price">${{ item.product.price }}</div>
+                        
+                        {% if item.size or item.color %}
+                            <div class="item-options">
+                                {% if item.size %}Size: {{ item.size }}{% endif %}
+                                {% if item.color %}{% if item.size %}, {% endif %}Color: {{ item.color }}{% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, {{ item.quantity|add:'-1' }})">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" class="quantity-input" value="{{ item.quantity }}" 
+                                   min="1" onchange="updateQuantity({{ item.id }}, this.value)">
+                            <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, {{ item.quantity|add:'1' }})">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <div><strong>Subtotal: ${{ item.total_price }}</strong></div>
+                    </div>
+                    
+                    <div class="item-actions">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'cart:save_for_later' item.id %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-heart"></i> Save for Later
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'cart:remove_from_cart' item.id %}" class="btn btn-outline-danger btn-sm"
+                           onclick="return confirm('Remove this item from cart?')">
+                            <i class="fas fa-trash"></i> Remove
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart-summary">
+            <h3>Order Summary</h3>
+            <div>Total Items: <strong>{{ total_items }}</strong></div>
+            <div class="total-amount">Total: ${{ total_price }}</div>
+            
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{% url 'products:product_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                </a>
+                <a href="{% url 'cart:clear_cart' %}" class="btn btn-outline-warning"
+                   onclick="return confirm('Clear entire cart?')">
+                    <i class="fas fa-trash-alt"></i> Clear Cart
+                </a>
+                <a href="{% url 'orders:checkout' %}" class="btn btn-success btn-lg">
+                    <i class="fas fa-credit-card"></i> Proceed to Checkout
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-cart">
+            <div class="empty-cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <h3>Your cart is empty</h3>
+            <p class="text-muted">Looks like you haven't added any items to your cart yet.</p>
+            <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-shopping-bag"></i> Start Shopping
+            </a>
+        </div>
+    {% endif %}
+
+    {% if user.is_authenticated and saved_items %}
+        <div class="saved-section">
+            <h3><i class="fas fa-heart"></i> Saved for Later ({{ saved_items.count }})</h3>
+            {% for saved in saved_items %}
+                <div class="saved-item">
+                    {% if saved.product.image %}
+                        <img src="{{ saved.product.image.url }}" alt="{{ saved.product.name }}">
+                    {% else %}
+                        <div style="width: 60px; height: 60px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">
+                            <i class="fas fa-image text-muted"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="flex-grow-1">
+                        <div class="font-weight-bold">{{ saved.product.name }}</div>
+                        <div class="text-success">${{ saved.product.price }}</div>
+                        <small class="text-muted">Saved {{ saved.saved_at|timesince }} ago</small>
+                    </div>
+                    
+                    <div>
+                        <a href="{% url 'cart:move_to_cart' saved.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-shopping-cart"></i> Move to Cart
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function updateQuantity(itemId, newQuantity) {
+    if (newQuantity < 1) {
+        if (confirm('Remove this item from cart?')) {
+            window.location.href = `/cart/remove/${itemId}/`;
+        }
+        return;
+    }
+    
+    fetch('/cart/ajax/update/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            'item_id': itemId,
+            'quantity': newQuantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error updating cart: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating cart');
+    });
+}
+
+// Update cart count in navigation
+function updateCartCount() {
+    fetch('/cart/ajax/count/')
+    .then(response => response.json())
+    .then(data => {
+        const cartBadge = document.querySelector('.cart-count');
+        if (cartBadge) {
+            cartBadge.textContent = data.count;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Call on page load
+document.addEventListener('DOMContentLoaded', updateCartCount);
+</script>
+{% endblock %}
+
+{% csrf_token %}

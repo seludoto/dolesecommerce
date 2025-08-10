@@ -1,0 +1,72 @@
+{% extends "admin/change_list.html" %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+function approveApplication(applicationId) {
+    if (confirm('Are you sure you want to approve this application? This will create a new store.')) {
+        // Create a form to submit the approval
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/stores/storeapplication/' + applicationId + '/approve/';
+        
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function rejectApplication(applicationId) {
+    var reason = prompt('Please provide a reason for rejection:');
+    if (reason && reason.trim() !== '') {
+        // Create a form to submit the rejection
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/stores/storeapplication/' + applicationId + '/reject/';
+        
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        var reasonInput = document.createElement('input');
+        reasonInput.type = 'hidden';
+        reasonInput.name = 'rejection_reason';
+        reasonInput.value = reason;
+        form.appendChild(reasonInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+<style>
+.application-actions .button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+}
+.approve-btn {
+    background-color: #28a745;
+    color: white;
+}
+.reject-btn {
+    background-color: #dc3545;
+    color: white;
+}
+.approve-btn:hover, .reject-btn:hover {
+    opacity: 0.8;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Help Center - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-question-circle text-primary me-3"></i>Help Center
+            </h1>
+            <p class="lead text-muted">Get answers to your questions and find helpful resources</p>
+        </div>
+    </div>
+
+    <!-- Quick Help Cards -->
+    <div class="row mb-5">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                        <i class="fas fa-shopping-cart text-primary fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Orders & Shipping</h5>
+                    <p class="card-text text-muted">Track orders, shipping info, and delivery updates</p>
+                    <a href="{% url 'orders:order_history' %}" class="btn btn-outline-primary btn-sm">View Orders</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                        <i class="fas fa-credit-card text-success fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Payments</h5>
+                    <p class="card-text text-muted">Payment methods, refunds, and billing questions</p>
+                    <a href="#" class="btn btn-outline-success btn-sm">Payment Help</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                        <i class="fas fa-undo text-warning fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Returns</h5>
+                    <p class="card-text text-muted">Return policy, refund process, and exchanges</p>
+                    <a href="#" class="btn btn-outline-warning btn-sm">Return Guide</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                        <i class="fas fa-user text-info fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Account</h5>
+                    <p class="card-text text-muted">Profile settings, security, and account management</p>
+                    <a href="{% url 'users:dashboard' %}" class="btn btn-outline-info btn-sm">My Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-question text-primary me-2"></i>Frequently Asked Questions
+            </h2>
+            
+            <div class="accordion" id="faqAccordion">
+                {% for faq in faq_items %}
+                    <div class="accordion-item border-0 shadow-sm mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq{{ forloop.counter }}" aria-expanded="false">
+                                {{ faq.question }}
+                            </button>
+                        </h2>
+                        <div id="faq{{ forloop.counter }}" class="accordion-collapse collapse" 
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                {{ faq.answer }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #1de9b6 0%, #1dd1a1 100%);">
+                <div class="card-body text-white text-center py-5">
+                    <h3 class="mb-3">Still need help?</h3>
+                    <p class="mb-4">Our customer support team is here to assist you</p>
+                    <div class="row justify-content-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="fas fa-envelope me-2"></i>
+                                <span>support@dolesecommerce.com</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="fas fa-phone me-2"></i>
+                                <span>+255 123 456 789</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="fas fa-clock me-2"></i>
+                                <span>24/7 Support</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'core:customer_service' %}" class="btn btn-light me-3">
+                            <i class="fas fa-comments me-2"></i>Live Chat
+                        </a>
+                        <a href="mailto:support@dolesecommerce.com" class="btn btn-outline-light">
+                            <i class="fas fa-envelope me-2"></i>Email Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

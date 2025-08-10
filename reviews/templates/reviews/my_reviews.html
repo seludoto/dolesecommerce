@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_tags %}
+
+{% block title %}My Reviews - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .review-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .product-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    .product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 15px;
+    }
+    .product-details h6 {
+        margin: 0;
+        color: #333;
+    }
+    .product-details .text-muted {
+        font-size: 0.9rem;
+    }
+    .star-rating {
+        color: #ffa500;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    .review-content {
+        margin-bottom: 15px;
+    }
+    .review-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .review-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    .approval-status {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    .status-approved {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    .helpful-count {
+        color: #28a745;
+        font-weight: 500;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+    .empty-state i {
+        font-size: 4rem;
+        color: #ccc;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-star"></i> My Reviews</h2>
+                <div class="text-muted">
+                    {{ reviews.count }} review{{ reviews.count|pluralize }}
+                </div>
+            </div>
+
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review-card">
+                    <!-- Product Information -->
+                    <div class="product-info">
+                        <img src="{% if review.product.main_image %}{{ review.product.main_image.url }}{% else %}{% static 'images/no-image.png' %}{% endif %}" 
+                             alt="{{ review.product.name }}" class="product-image">
+                        <div class="product-details flex-grow-1">
+                            <h6><a href="{% url 'products:product_detail' review.product.pk %}" class="text-decoration-none">{{ review.product.name }}</a></h6>
+                            <div class="text-muted">Category: {{ review.product.category.name|default:"Uncategorized" }}</div>
+                            <div class="text-muted">Price: {% product_price review.product %}</div>
+                        </div>
+                        <div class="approval-status {% if review.is_approved %}status-approved{% else %}status-pending{% endif %}">
+                            {% if review.is_approved %}
+                                <i class="fas fa-check-circle"></i> Published
+                            {% else %}
+                                <i class="fas fa-clock"></i> Pending Review
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="star-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= review.rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="ms-2 text-muted">({{ review.rating }}/5)</span>
+                    </div>
+
+                    <!-- Review Title -->
+                    {% if review.title %}
+                    <h6 class="review-title">{{ review.title }}</h6>
+                    {% endif %}
+
+                    <!-- Review Content -->
+                    <div class="review-content">
+                        <p class="mb-0">{{ review.comment }}</p>
+                    </div>
+
+                    <!-- Review Meta and Actions -->
+                    <div class="review-meta">
+                        <div>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar"></i> 
+                                Written on {{ review.created_at|date:"F d, Y" }}
+                                {% if review.updated_at != review.created_at %}
+                                    • Updated {{ review.updated_at|date:"F d, Y" }}
+                                {% endif %}
+                            </small>
+                            {% if review.helpful_count > 0 %}
+                                <div class="helpful-count mt-1">
+                                    <i class="fas fa-thumbs-up"></i> {{ review.helpful_count }} people found this helpful
+                                </div>
+                            {% endif %}
+                            {% if review.is_verified_purchase %}
+                                <div class="text-success mt-1">
+                                    <i class="fas fa-check-circle"></i> Verified Purchase
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="review-actions">
+                            <a href="{% url 'reviews:edit_review' review.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ review.id }}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Confirmation Modal -->
+                <div class="modal fade" id="deleteModal{{ review.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ review.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel{{ review.id }}">Delete Review</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete your review for <strong>{{ review.product.name }}</strong>?</p>
+                                <p class="text-muted">This action cannot be undone.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form method="post" action="{% url 'reviews:delete_review' review.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Delete Review</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-star-o"></i>
+                    <h4>No Reviews Yet</h4>
+                    <p class="text-muted">You haven't written any product reviews yet.</p>
+                    <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+                        <i class="fas fa-shopping-bag"></i> Shop Products
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Add any additional JavaScript functionality here
+    $('.review-card').hover(
+        function() {
+            $(this).addClass('shadow-sm');
+        },
+        function() {
+            $(this).removeClass('shadow-sm');
+        }
+    );
+});
+</script>
+{% endblock %}

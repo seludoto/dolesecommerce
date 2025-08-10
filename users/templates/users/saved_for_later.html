@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Saved for Later - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <a href="{% url 'users:dashboard' %}" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h2 class="mb-1">Saved for Later</h2>
+                    <p class="text-muted mb-0">Items you've saved from your cart</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if saved_items %}
+        <div class="row g-4">
+            {% for item in saved_items %}
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="position-relative">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                     class="card-img-top" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-image text-muted fa-3x"></i>
+                                </div>
+                            {% endif %}
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge bg-info">Saved {{ item.saved_at|timesince }} ago</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title">{{ item.product.name }}</h6>
+                            <p class="text-primary fw-bold mb-2">${{ item.product.price|floatformat:2 }}</p>
+                            {% if item.size %}
+                                <p class="text-muted small mb-1">Size: {{ item.size }}</p>
+                            {% endif %}
+                            {% if item.color %}
+                                <p class="text-muted small mb-2">Color: {{ item.color }}</p>
+                            {% endif %}
+                            <div class="d-grid gap-2">
+                                <form method="post" action="{% url 'cart:move_to_cart' item.product.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm w-100">
+                                        <i class="fas fa-shopping-cart me-1"></i>Move to Cart
+                                    </button>
+                                </form>
+                                <a href="{% url 'products:product_detail' item.product.id %}" class="btn btn-outline-primary btn-sm">
+                                    View Product
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm" onclick="removeSavedItem('{{ item.id }}')">
+                                    <i class="fas fa-trash me-1"></i>Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-bookmark text-muted mb-4" style="font-size: 4rem;"></i>
+            <h4 class="text-muted mb-3">No saved items</h4>
+            <p class="text-muted mb-4">Items you save from your cart will appear here</p>
+            <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+                <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function removeSavedItem(itemId) {
+    if (confirm('Are you sure you want to remove this item?')) {
+        // Here you would implement the AJAX call to remove the item
+        console.log('Remove item:', itemId);
+    }
+}
+</script>
+{% endblock %}

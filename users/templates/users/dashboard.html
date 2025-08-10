@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}My Dashboard - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0" style="background: linear-gradient(135deg, #1de9b6 0%, #1dd1a1 100%);">
+                <div class="card-body text-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="mb-1">Welcome back, {{ user.get_full_name|default:user.username }}!</h2>
+                            <p class="mb-0 opacity-75">Manage your account and track your orders</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            {% if profile.avatar %}
+                                <img src="{{ profile.avatar.url }}" alt="Avatar" class="rounded-circle" width="80" height="80" style="border: 3px solid rgba(255,255,255,0.3);">
+                            {% else %}
+                                <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-user text-success" style="font-size: 2rem;"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="text-primary mb-2">
+                        <i class="fas fa-shopping-bag" style="font-size: 2rem;"></i>
+                    </div>
+                    <h4 class="text-dark mb-1">{{ total_orders|default:0 }}</h4>
+                    <small class="text-muted">Total Orders</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="text-success mb-2">
+                        <i class="fas fa-heart" style="font-size: 2rem;"></i>
+                    </div>
+                    <h4 class="text-dark mb-1">{{ wishlist_count|default:0 }}</h4>
+                    <small class="text-muted">Wishlist Items</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-shopping-cart" style="font-size: 2rem;"></i>
+                    </div>
+                    <h4 class="text-dark mb-1">{{ cart_items|default:0 }}</h4>
+                    <small class="text-muted">Cart Items</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="text-info mb-2">
+                        <i class="fas fa-star" style="font-size: 2rem;"></i>
+                    </div>
+                    <h4 class="text-dark mb-1">{{ reviews_count|default:0 }}</h4>
+                    <small class="text-muted">Reviews Written</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Sidebar - Account Menu -->
+        <div class="col-lg-3 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0 text-dark">
+                        <i class="fas fa-user-circle me-2"></i>My Account
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'users:dashboard' %}" class="list-group-item list-group-item-action border-0 active">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="{% url 'users:profile' %}" class="list-group-item list-group-item-action border-0">
+                        <i class="fas fa-user me-2"></i>Profile Settings
+                    </a>
+                    <a href="{% url 'orders:order_history' %}" class="list-group-item list-group-item-action border-0">
+                        <i class="fas fa-box me-2"></i>Order History
+                    </a>
+                    <a href="{% url 'users:wishlist' %}" class="list-group-item list-group-item-action border-0">
+                        <i class="fas fa-heart me-2"></i>Wishlist
+                    </a>
+                    <a href="{% url 'cart:cart_detail' %}" class="list-group-item list-group-item-action border-0">
+                        <i class="fas fa-shopping-cart me-2"></i>Shopping Cart
+                    </a>
+                    <a href="{% url 'users:saved_for_later' %}" class="list-group-item list-group-item-action border-0">
+                        <i class="fas fa-bookmark me-2"></i>Saved for Later
+                    </a>
+                    <a href="{% url 'reviews:my_reviews' %}" class="list-group-item list-group-item-action border-0">
+                        <i class="fas fa-star me-2"></i>My Reviews
+                    </a>
+                    <a href="{% url 'users:coupons' %}" class="list-group-item list-group-item-action border-0">
+                        <i class="fas fa-gift me-2"></i>My Coupons
+                    </a>
+                    <a href="{% url 'users:addresses' %}" class="list-group-item list-group-item-action border-0">
+                        <i class="fas fa-map-marker-alt me-2"></i>Address Book
+                    </a>
+                    <a href="{% url 'users:notifications' %}" class="list-group-item list-group-item-action border-0">
+                        <i class="fas fa-bell me-2"></i>Notifications
+                        {% if unread_notifications > 0 %}
+                            <span class="badge bg-danger rounded-pill float-end">{{ unread_notifications }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0 text-dark">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'products:product_list' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-shopping-bag me-1"></i>Continue Shopping
+                        </a>
+                        <a href="{% url 'users:invite_friends' %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-user-plus me-1"></i>Invite Friends
+                        </a>
+                        <a href="{% url 'core:help' %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-question-circle me-1"></i>Help Center
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-lg-9">
+            <!-- Recent Orders -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-dark">
+                        <i class="fas fa-clock me-2"></i>Recent Orders
+                    </h5>
+                    <a href="{% url 'orders:order_history' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_orders %}
+                        {% for order in recent_orders %}
+                            <div class="d-flex align-items-center border-bottom py-3 {% if not forloop.last %}mb-3{% endif %}">
+                                <div class="flex-shrink-0">
+                                    {% if order.items.first.product.image %}
+                                        <img src="{{ order.items.first.product.image.url }}" alt="{{ order.items.first.product.name }}" 
+                                             class="rounded" width="60" height="60" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">Order #{{ order.id }}</h6>
+                                    <p class="text-muted mb-1 small">{{ order.created_at|naturaltime }}</p>
+                                    <span class="badge bg-{{ order.get_status_color }}">{{ order.get_status_display }}</span>
+                                </div>
+                                <div class="text-end">
+                                    <h6 class="mb-0 text-primary">${{ order.total|floatformat:2 }}</h6>
+                                    <small class="text-muted">{{ order.items.count }} item{% if order.items.count != 1 %}s{% endif %}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-shopping-bag text-muted mb-3" style="font-size: 3rem;"></i>
+                            <h6 class="text-muted">No orders yet</h6>
+                            <p class="text-muted small">Start shopping to see your orders here</p>
+                            <a href="{% url 'products:product_list' %}" class="btn btn-primary">Start Shopping</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recently Viewed Products -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0 text-dark">
+                        <i class="fas fa-eye me-2"></i>Recently Viewed
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recently_viewed %}
+                        <div class="row g-3">
+                            {% for item in recently_viewed %}
+                                <div class="col-md-3 col-6">
+                                    <div class="card border-0 h-100">
+                                        <a href="{% url 'products:product_detail' item.product.id %}" class="text-decoration-none">
+                                            {% if item.product.image %}
+                                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                                     class="card-img-top" style="height: 150px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                                    <i class="fas fa-image text-muted"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div class="card-body p-2">
+                                                <h6 class="card-title text-dark small mb-1">{{ item.product.name|truncatechars:30 }}</h6>
+                                                <p class="text-primary mb-0 small fw-bold">${{ item.product.price|floatformat:2 }}</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-eye text-muted mb-3" style="font-size: 3rem;"></i>
+                            <h6 class="text-muted">No recently viewed items</h6>
+                            <p class="text-muted small">Products you view will appear here</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Account Activity -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0 text-dark">
+                        <i class="fas fa-chart-line me-2"></i>Account Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                        <i class="fas fa-user-check text-success"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">Member Since</h6>
+                                    <p class="text-muted mb-0 small">{{ user.date_joined|date:"F Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                                        <i class="fas fa-calendar text-info"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">Last Login</h6>
+                                    <p class="text-muted mb-0 small">{{ user.last_login|naturaltime|default:"Never" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+.list-group-item.active {
+    background-color: #1de9b6 !important;
+    border-color: #1de9b6 !important;
+}
+
+.list-group-item:hover {
+    background-color: rgba(29, 233, 182, 0.1);
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.bg-success { background-color: #28a745 !important; }
+.bg-warning { background-color: #ffc107 !important; }
+.bg-danger { background-color: #dc3545 !important; }
+.bg-info { background-color: #17a2b8 !important; }
+</style>
+{% endblock %}

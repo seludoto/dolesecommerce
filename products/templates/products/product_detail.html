@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load currency_filters %}
 {% block content %}
   <div class="row">
     <div class="col-md-5">
@@ -9,7 +10,7 @@
     <div class="col-md-7">
       <h1>{{ product.name }}</h1>
       <p>{{ product.description }}</p>
-      <p><strong>Price:</strong> ${{ product.price }}</p>
+  <p><strong>Price:</strong> {{ product.price|convert_currency:current_currency }}</p>
       <p><strong>Category:</strong> {{ product.category }}</p>
       <p><strong>Brand:</strong> {{ product.brand }}</p>
       <p><strong>Stock:</strong> {{ product.stock }}</p>

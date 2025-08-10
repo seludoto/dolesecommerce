@@ -6,6 +6,20 @@ MPESA_CONSUMER_SECRET = ''  # Set your Daraja consumer secret
 MPESA_SHORTCODE = ''  # Your paybill or till number
 MPESA_PASSKEY = ''  # Your Daraja passkey
 MPESA_BASE_URL = 'https://sandbox.safaricom.co.ke'  # Use production URL for live
+
+# --- M-Pesa B2C (Business to Customer) Settings ---
+MPESA_INITIATOR_NAME = ''  # Set your B2C initiator name
+MPESA_SECURITY_CREDENTIAL = ''  # Set your B2C security credential (encrypted password)
+
+# --- Site URL for callbacks ---
+SITE_URL = 'https://your-domain.com'  # Update with your actual domain
+
+# --- Pi Network Payment Settings ---
+PI_NETWORK_API_KEY = ''  # Set your Pi Network API key
+PI_WALLET_ADDRESS = 'GDQRPILGB4NXFIXJ6KLQZ5YJBM6JYH7W3MQNQZ5YJBM6JYH7W3MQ'  # Your Pi wallet address
+PI_SANDBOX_MODE = True  # Set to False for production
+PI_WEBHOOK_SECRET = 'your_webhook_secret_here'  # Secret for webhook verification
+PI_DEFAULT_RATE = 0.314159  # Default Pi to USD rate
 """
 Django settings for dolesecommerce project.
 
@@ -38,11 +52,11 @@ SECRET_KEY = 'django-insecure-njfceutc8-d%mjf5jy!zxti#!-x#x$x2)rnu=a+xo9u+1w*=hx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '172.20.10.2']
+ALLOWED_HOSTS = ['*']
+
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -50,18 +64,30 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'django.contrib.sitemaps',
+    # Core apps
     'core',
     'users',
     'products',
+    'cart',
     'orders',
     'payments',
     'reviews',
     'shipping',
+    'analytics',
+    'promotions',
+    'notifications',
+    'stores',
+    # Enable translation and localization
+    'django.contrib.sites',
+    'django.contrib.flatpages',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -81,6 +107,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.global_context',
             ],
         },
     },
@@ -136,7 +163,122 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Advanced E-commerce Settings
+CART_SESSION_ID = 'cart'
+WISHLIST_SESSION_ID = 'wishlist'
+COMPARISON_SESSION_ID = 'comparison'
+
+# Cache Settings
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@dolesecommerce.com'
+ADMIN_EMAIL = 'admin@dolesecommerce.com'
+
+
+# Security Settings for Production
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_SSL_REDIRECT = False  # Set to True only in production with HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Search Settings
+SEARCH_RESULTS_PER_PAGE = 20
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'localhost:9200'
+    },
+}
+
+# Analytics Settings
+GOOGLE_ANALYTICS_ID = ''  # Set your GA tracking ID
+FACEBOOK_PIXEL_ID = ''    # Set your Facebook Pixel ID
+
+# Payment Settings
+STRIPE_PUBLIC_KEY = ''    # Set your Stripe public key
+STRIPE_SECRET_KEY = ''    # Set your Stripe secret key
+PAYPAL_CLIENT_ID = ''     # Set your PayPal client ID
+
+# Social Media Settings
+FACEBOOK_APP_ID = ''
+TWITTER_API_KEY = ''
+INSTAGRAM_ACCESS_TOKEN = ''
+
+
+# AI/ML & Personalization Settings
+RECOMMENDATION_ENGINE_ENABLED = True  # Personalized recommendations
+PERSONALIZATION_ENABLED = True         # Personalized content
+AUTO_TAGGING_ENABLED = True           # Auto-tagging for products
+
+
+# Internationalization
+LANGUAGES = [
+    ('en', 'English'),
+    ('es', 'Spanish'),
+    ('fr', 'French'),
+    ('de', 'German'),
+    ('sw', 'Swahili'),
+]
+LOCALE_PATHS = [BASE_DIR / 'locale']
+LANGUAGE_CODE = 'en-us'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+# Multi-currency support
+CURRENCIES = [
+    ('TZS', 'Tanzanian Shilling'),
+    ('USD', 'US Dollar'),
+    ('EUR', 'Euro'),
+    ('GBP', 'British Pound'),
+    ('KES', 'Kenyan Shilling'),
+    ('PI', 'Pi Coin'),
+]
+DEFAULT_CURRENCY = 'TZS'
+
+# Inventory Management
+LOW_STOCK_THRESHOLD = 5
+AUTO_REORDER_ENABLED = False
+STOCK_RESERVATION_TIMEOUT = 15  # minutes
+
+
+# Performance Settings
+SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_SAVE_EVERY_REQUEST = False
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# File Upload Settings
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+
+# Authentication URLs
+LOGIN_URL = '/users/login/'
+LOGIN_REDIRECT_URL = '/users/dashboard/'
+LOGOUT_REDIRECT_URL = '/users/login/'

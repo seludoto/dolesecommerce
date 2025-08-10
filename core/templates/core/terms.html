@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Terms & Conditions - DoleseCommerce{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #ff9a56 0%, #ff6b88 100%); color: white;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-file-contract me-3"></i>Terms & Conditions
+                </h1>
+                <p class="lead">DoleseCommerce Terms of Service and User Agreement</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                <div class="card-body p-5">
+                    
+                    <!-- Last Updated -->
+                    <div class="alert alert-info" style="border-radius: 15px;">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        <strong>Last Updated:</strong> August 8, 2025
+                    </div>
+
+                    <!-- Introduction -->
+                    <section class="mb-5">
+                        <h2 class="h3 fw-bold text-primary mb-4">
+                            <i class="fas fa-handshake me-2"></i>Welcome to DoleseCommerce
+                        </h2>
+                        <p class="lead">
+                            Welcome to DoleseCommerce, Tanzania's premier e-commerce marketplace. These Terms and Conditions govern your use of our website and services. By accessing and using DoleseCommerce, you accept and agree to be bound by these terms.
+                        </p>
+                    </section>
+
+                    <!-- Acceptance of Terms -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-bold text-primary mb-3">
+                            <i class="fas fa-check-circle me-2"></i>1. Acceptance of Terms
+                        </h3>
+                        <p>By creating an account, making a purchase, or using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions and our Privacy Policy.</p>
+                    </section>
+
+                    <!-- User Accounts -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-bold text-primary mb-3">
+                            <i class="fas fa-user-circle me-2"></i>2. User Accounts
+                        </h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>You must provide accurate and complete information when creating an account</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>You are responsible for maintaining the security of your account</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>You must be at least 18 years old to create an account</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>One account per person is allowed</li>
+                        </ul>
+                    </section>
+
+                    <!-- Products and Services -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-bold text-primary mb-3">
+                            <i class="fas fa-shopping-cart me-2"></i>3. Products and Services
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="fw-bold">Product Information</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-info-circle text-info me-2"></i>Product descriptions are accurate to the best of our knowledge</li>
+                                    <li class="mb-2"><i class="fas fa-info-circle text-info me-2"></i>Prices are subject to change without notice</li>
+                                    <li class="mb-2"><i class="fas fa-info-circle text-info me-2"></i>Product availability is not guaranteed</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="fw-bold">Multi-Vendor Marketplace</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-store text-warning me-2"></i>Products are sold by independent vendors</li>
+                                    <li class="mb-2"><i class="fas fa-store text-warning me-2"></i>Each vendor is responsible for their products</li>
+                                    <li class="mb-2"><i class="fas fa-store text-warning me-2"></i>DoleseCommerce facilitates transactions</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Payment Terms -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-bold text-primary mb-3">
+                            <i class="fas fa-credit-card me-2"></i>4. Payment Terms
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-3">
+                                <div class="p-3 bg-light rounded">
+                                    <i class="fas fa-mobile-alt fa-2x text-success mb-2"></i>
+                                    <h6 class="fw-bold">M-Pesa Payments</h6>
+                                    <p class="small text-muted">Secure mobile money transactions</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center mb-3">
+                                <div class="p-3 bg-light rounded">
+                                    <i class="fas fa-coins fa-2x text-warning mb-2"></i>
+                                    <h6 class="fw-bold">Pi Coin</h6>
+                                    <p class="small text-muted">Cryptocurrency payments accepted</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center mb-3">
+                                <div class="p-3 bg-light rounded">
+                                    <i class="fas fa-money-bill-wave fa-2x text-primary mb-2"></i>
+                                    <h6 class="fw-bold">Traditional Methods</h6>
+                                    <p class="small text-muted">Bank transfers and cash on delivery</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p>All payments are processed securely. You agree to pay all charges incurred by your account.</p>
+                    </section>
+
+                    <!-- Shipping and Delivery -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-bold text-primary mb-3">
+                            <i class="fas fa-truck me-2"></i>5. Shipping and Delivery
+                        </h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-shipping-fast text-primary me-2"></i>Delivery times are estimates and may vary</li>
+                            <li class="mb-2"><i class="fas fa-map-marker-alt text-danger me-2"></i>Shipping is available throughout Tanzania</li>
+                            <li class="mb-2"><i class="fas fa-box text-warning me-2"></i>Risk of loss transfers upon delivery</li>
+                            <li class="mb-2"><i class="fas fa-clock text-info me-2"></i>International shipping may be available for select items</li>
+                        </ul>
+                    </section>
+
+                    <!-- Returns and Refunds -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-bold text-primary mb-3">
+                            <i class="fas fa-undo me-2"></i>6. Returns and Refunds
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fas fa-check-circle me-2"></i>Return Policy
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li><i class="fas fa-calendar me-2 text-success"></i>30-day return window</li>
+                                            <li><i class="fas fa-box me-2 text-success"></i>Items must be unused</li>
+                                            <li><i class="fas fa-receipt me-2 text-success"></i>Original packaging required</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <i class="fas fa-money-check-alt me-2"></i>Refund Process
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li><i class="fas fa-clock me-2 text-info"></i>3-5 business days processing</li>
+                                            <li><i class="fas fa-mobile-alt me-2 text-info"></i>M-Pesa refunds available</li>
+                                            <li><i class="fas fa-coins me-2 text-info"></i>Pi Coin refunds supported</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Prohibited Uses -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-bold text-danger mb-3">
+                            <i class="fas fa-ban me-2"></i>7. Prohibited Uses
+                        </h3>
+                        <div class="alert alert-danger" style="border-radius: 15px;">
+                            <h6 class="fw-bold">You may not use our service to:</h6>
+                            <ul class="mb-0">
+                                <li>Violate any laws or regulations</li>
+                                <li>Sell counterfeit or illegal products</li>
+                                <li>Engage in fraudulent activities</li>
+                                <li>Harm minors in any way</li>
+                                <li>Transmit malware or harmful code</li>
+                                <li>Impersonate others or provide false information</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- Intellectual Property -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-bold text-primary mb-3">
+                            <i class="fas fa-copyright me-2"></i>8. Intellectual Property
+                        </h3>
+                        <p>All content on DoleseCommerce, including logos, text, graphics, and software, is protected by intellectual property rights. You may not use our content without permission.</p>
+                    </section>
+
+                    <!-- Limitation of Liability -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-bold text-primary mb-3">
+                            <i class="fas fa-shield-alt me-2"></i>9. Limitation of Liability
+                        </h3>
+                        <p>DoleseCommerce shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our service.</p>
+                    </section>
+
+                    <!-- Contact Information -->
+                    <section class="mb-4">
+                        <h3 class="h4 fw-bold text-primary mb-3">
+                            <i class="fas fa-envelope me-2"></i>10. Contact Us
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="contact-info p-3 bg-light rounded">
+                                    <h6 class="fw-bold">Customer Support</h6>
+                                    <p class="mb-1"><i class="fas fa-envelope text-primary me-2"></i>support@dolesecommerce.com</p>
+                                    <p class="mb-1"><i class="fas fa-phone text-success me-2"></i>+255 XX XXX XXXX</p>
+                                    <p class="mb-0"><i class="fas fa-map-marker-alt text-danger me-2"></i>Dar es Salaam, Tanzania</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="contact-info p-3 bg-light rounded">
+                                    <h6 class="fw-bold">Business Hours</h6>
+                                    <p class="mb-1"><i class="fas fa-clock text-info me-2"></i>Monday - Friday: 8:00 AM - 6:00 PM</p>
+                                    <p class="mb-1"><i class="fas fa-clock text-info me-2"></i>Saturday: 9:00 AM - 4:00 PM</p>
+                                    <p class="mb-0"><i class="fas fa-clock text-info me-2"></i>Sunday: Closed</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Agreement -->
+                    <div class="text-center">
+                        <div class="alert alert-success" style="border-radius: 15px;">
+                            <h5 class="fw-bold mb-2">
+                                <i class="fas fa-handshake me-2"></i>Agreement
+                            </h5>
+                            <p class="mb-0">By using DoleseCommerce, you acknowledge that you have read and agree to these Terms and Conditions.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back to Top -->
+<div class="text-center py-4">
+    <a href="#" class="btn btn-primary btn-lg" onclick="window.scrollTo(0,0); return false;" style="border-radius: 50px;">
+        <i class="fas fa-arrow-up me-2"></i>Back to Top
+    </a>
+</div>
+{% endblock %}

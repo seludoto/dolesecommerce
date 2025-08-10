@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to Your Personalized Shopping Experience{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row align-items-center mb-5">
+        <div class="col-md-7">
+            <h1 class="display-5 fw-bold">Hello, {{ user.first_name|default:user.username|default:"Shopper" }}!</h1>
+            <p class="lead">Discover products, deals, and recommendations tailored just for you by our AI-powered platform.</p>
+            <a href="{% url 'products:product_list' %}" class="btn btn-lg btn-success me-2">Shop Now</a>
+            <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-primary btn-lg">View Cart</a>
+        </div>
+        <div class="col-md-5 text-center">
+            <img src="{% static 'images/ai-personalized.svg' %}" class="img-fluid rounded shadow" alt="AI Shopping" style="max-height: 260px;">
+        </div>
+    </div>
+
+    <!-- Featured Products -->
+    <h2 class="mb-4"><i class="fas fa-star text-warning me-2"></i>Featured for You</h2>
+    <div class="row row-cols-1 row-cols-md-4 g-4 mb-5">
+        {% for product in featured_products %}
+        <div class="col">
+            <div class="card h-100">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ product.name|truncatechars:40 }}</h6>
+                    <p class="card-text text-success fw-bold">${{ product.price }}</p>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    <a href="{% url 'products:product_detail' product.pk %}" class="btn btn-primary btn-sm w-100">View</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col"><div class="alert alert-info">No featured products yet.</div></div>
+        {% endfor %}
+    </div>
+
+    <!-- Trending Products -->
+    <h2 class="mb-4"><i class="fas fa-fire text-danger me-2"></i>Trending Now</h2>
+    <div class="row row-cols-1 row-cols-md-4 g-4 mb-5">
+        {% for product in trending_products %}
+        <div class="col">
+            <div class="card h-100">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ product.name|truncatechars:40 }}</h6>
+                    <p class="card-text text-success fw-bold">${{ product.price }}</p>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    <a href="{% url 'products:product_detail' product.pk %}" class="btn btn-outline-primary btn-sm w-100">View</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col"><div class="alert alert-info">No trending products right now.</div></div>
+        {% endfor %}
+    </div>
+
+    <!-- Personalized Categories -->
+    <h2 class="mb-4"><i class="fas fa-th-large text-info me-2"></i>Recommended Categories</h2>
+    <div class="row row-cols-2 row-cols-md-6 g-3 mb-5">
+        {% for category in recommended_categories %}
+        <div class="col">
+            <a href="{% url 'products:category_products' category.slug %}" class="btn btn-outline-info w-100 py-3">
+                <i class="fas fa-tag me-2"></i>{{ category.name }}
+            </a>
+        </div>
+        {% empty %}
+        <div class="col"><div class="alert alert-info">No categories yet.</div></div>
+        {% endfor %}
+    </div>
+
+    <!-- Recently Viewed -->
+    {% if recent_views %}
+    <h2 class="mb-4"><i class="fas fa-history text-secondary me-2"></i>Recently Viewed</h2>
+    <div class="row row-cols-2 row-cols-md-6 g-3 mb-5">
+        {% for product in recent_views %}
+        <div class="col">
+            <div class="card h-100">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 120px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body p-2">
+                    <h6 class="card-title mb-1">{{ product.name|truncatechars:25 }}</h6>
+                </div>
+                <div class="card-footer bg-white border-0 p-2">
+                    <a href="{% url 'products:product_detail' product.pk %}" class="btn btn-outline-secondary btn-sm w-100">View Again</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Wishlist Items -->
+    {% if wishlist_items %}
+    <h2 class="mb-4"><i class="fas fa-heart text-danger me-2"></i>Your Wishlist</h2>
+    <div class="row row-cols-2 row-cols-md-6 g-3 mb-5">
+        {% for product in wishlist_items %}
+        <div class="col">
+            <div class="card h-100">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 120px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body p-2">
+                    <h6 class="card-title mb-1">{{ product.name|truncatechars:25 }}</h6>
+                </div>
+                <div class="card-footer bg-white border-0 p-2">
+                    <a href="{% url 'products:product_detail' product.pk %}" class="btn btn-outline-danger btn-sm w-100">View</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- AI Callout -->
+    <div class="alert alert-info mt-5 text-center">
+        <i class="fas fa-robot fa-2x me-2"></i>
+        <strong>Powered by AI:</strong> All recommendations, trending products, and personalized content on this page are generated by our advanced AI engine for a smarter shopping experience.
+    </div>
+</div>
+{% endblock %}

@@ -1,4 +1,631 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Special Deals & Offers - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .deals-hero {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .deals-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .deals-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .deal-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #ff6b6b;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        z-index: 2;
+    }
+    
+    .deal-timer {
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        margin-top: 15px;
+    }
+    
+    .timer-unit {
+        display: inline-block;
+        margin: 0 5px;
+        text-align: center;
+    }
+    
+    .timer-number {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .timer-label {
+        display: block;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+    }
+    
+    .price-old {
+        text-decoration: line-through;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .price-new {
+        color: #ff6b6b;
+        font-weight: bold;
+        font-size: 1.3rem;
+    }
+    
+    .discount-percent {
+        background: #28a745;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+    
+    .category-filter {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .filter-btn {
+        border: 2px solid #e9ecef;
+        background: white;
+        color: #6c757d;
+        padding: 8px 20px;
+        border-radius: 25px;
+        margin: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-btn:hover,
+    .filter-btn.active {
+        border-color: #ff6b6b;
+        background: #ff6b6b;
+        color: white;
+    }
+    
+    .flash-sale {
+        background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+        color: #333;
+    }
+    
+    .flash-sale h3 {
+        color: #d63031;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    .deal-progress {
+        background: rgba(255,255,255,0.3);
+        border-radius: 10px;
+        height: 20px;
+        margin: 15px 0;
+        overflow: hidden;
+    }
+    
+    .deal-progress-bar {
+        background: #d63031;
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+    }
+    
+    .newsletter-signup {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 40px;
+        text-align: center;
+        margin-top: 50px;
+    }
+    
+    .deal-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="deals-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4 fw-bold mb-4">🔥 Hot Deals & Special Offers</h1>
+                <p class="lead mb-4">Discover incredible savings on your favorite products. Limited time offers you don't want to miss!</p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <a href="#flash-sales" class="btn btn-light btn-lg">Flash Sales</a>
+                    <a href="#daily-deals" class="btn btn-outline-light btn-lg">Daily Deals</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Flash Sale Banner -->
+<section class="py-4" id="flash-sales">
+    <div class="container">
+        <div class="flash-sale">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3><i class="fas fa-bolt me-2"></i>Flash Sale - Up to 70% Off!</h3>
+                    <p class="mb-0">Limited quantities available. Sale ends in:</p>
+                    <div class="deal-timer d-inline-block">
+                        <div class="timer-unit">
+                            <span class="timer-number" id="hours">12</span>
+                            <span class="timer-label">Hours</span>
+                        </div>
+                        <div class="timer-unit">
+                            <span class="timer-number" id="minutes">34</span>
+                            <span class="timer-label">Minutes</span>
+                        </div>
+                        <div class="timer-unit">
+                            <span class="timer-number" id="seconds">56</span>
+                            <span class="timer-label">Seconds</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="deal-progress">
+                        <div class="deal-progress-bar" style="width: 65%"></div>
+                    </div>
+                    <small>65% claimed • 35% remaining</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Filters -->
+<section class="py-3">
+    <div class="container">
+        <div class="category-filter">
+            <h5 class="mb-3">Filter by Category:</h5>
+            <div class="text-center">
+                <button class="filter-btn active" data-category="all">All Deals</button>
+                <button class="filter-btn" data-category="electronics">Electronics</button>
+                <button class="filter-btn" data-category="fashion">Fashion</button>
+                <button class="filter-btn" data-category="home">Home & Garden</button>
+                <button class="filter-btn" data-category="sports">Sports</button>
+                <button class="filter-btn" data-category="beauty">Beauty</button>
+                <button class="filter-btn" data-category="books">Books</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Deals Grid -->
+<section class="py-5" id="daily-deals">
+    <div class="container">
+        <h2 class="text-center mb-5">Today's Best Deals</h2>
+        <div class="row" id="deals-grid">
+            <!-- Deal Card 1 -->
+            <div class="col-lg-4 col-md-6 mb-4" data-category="electronics">
+                <div class="card deals-card">
+                    <div class="position-relative">
+                        <img src="{% static 'images/product-placeholder.jpg' %}" class="deal-image" alt="Wireless Headphones">
+                        <div class="deal-badge">70% OFF</div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Premium Wireless Headphones</h5>
+                        <p class="text-muted small">Noise-canceling, 30-hour battery life</p>
+                        <div class="price-section mb-3">
+                            <span class="price-old">$199.99</span>
+                            <span class="price-new">$59.99</span>
+                            <span class="discount-percent">-70%</span>
+                        </div>
+                        <div class="deal-timer">
+                            <div class="timer-unit">
+                                <span class="timer-number">8</span>
+                                <span class="timer-label">H</span>
+                            </div>
+                            <div class="timer-unit">
+                                <span class="timer-number">45</span>
+                                <span class="timer-label">M</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger w-100 mt-3">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deal Card 2 -->
+            <div class="col-lg-4 col-md-6 mb-4" data-category="fashion">
+                <div class="card deals-card">
+                    <div class="position-relative">
+                        <img src="{% static 'images/product-placeholder.jpg' %}" class="deal-image" alt="Designer Watch">
+                        <div class="deal-badge">50% OFF</div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Luxury Designer Watch</h5>
+                        <p class="text-muted small">Swiss movement, waterproof design</p>
+                        <div class="price-section mb-3">
+                            <span class="price-old">$899.99</span>
+                            <span class="price-new">$449.99</span>
+                            <span class="discount-percent">-50%</span>
+                        </div>
+                        <div class="deal-timer">
+                            <div class="timer-unit">
+                                <span class="timer-number">6</span>
+                                <span class="timer-label">H</span>
+                            </div>
+                            <div class="timer-unit">
+                                <span class="timer-number">22</span>
+                                <span class="timer-label">M</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger w-100 mt-3">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deal Card 3 -->
+            <div class="col-lg-4 col-md-6 mb-4" data-category="home">
+                <div class="card deals-card">
+                    <div class="position-relative">
+                        <img src="{% static 'images/product-placeholder.jpg' %}" class="deal-image" alt="Smart Home Hub">
+                        <div class="deal-badge">40% OFF</div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Smart Home Control Hub</h5>
+                        <p class="text-muted small">Voice control, works with all devices</p>
+                        <div class="price-section mb-3">
+                            <span class="price-old">$249.99</span>
+                            <span class="price-new">$149.99</span>
+                            <span class="discount-percent">-40%</span>
+                        </div>
+                        <div class="deal-timer">
+                            <div class="timer-unit">
+                                <span class="timer-number">12</span>
+                                <span class="timer-label">H</span>
+                            </div>
+                            <div class="timer-unit">
+                                <span class="timer-number">15</span>
+                                <span class="timer-label">M</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger w-100 mt-3">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deal Card 4 -->
+            <div class="col-lg-4 col-md-6 mb-4" data-category="sports">
+                <div class="card deals-card">
+                    <div class="position-relative">
+                        <img src="{% static 'images/product-placeholder.jpg' %}" class="deal-image" alt="Fitness Tracker">
+                        <div class="deal-badge">60% OFF</div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Advanced Fitness Tracker</h5>
+                        <p class="text-muted small">Heart rate, GPS, 7-day battery</p>
+                        <div class="price-section mb-3">
+                            <span class="price-old">$299.99</span>
+                            <span class="price-new">$119.99</span>
+                            <span class="discount-percent">-60%</span>
+                        </div>
+                        <div class="deal-timer">
+                            <div class="timer-unit">
+                                <span class="timer-number">4</span>
+                                <span class="timer-label">H</span>
+                            </div>
+                            <div class="timer-unit">
+                                <span class="timer-number">33</span>
+                                <span class="timer-label">M</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger w-100 mt-3">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deal Card 5 -->
+            <div class="col-lg-4 col-md-6 mb-4" data-category="beauty">
+                <div class="card deals-card">
+                    <div class="position-relative">
+                        <img src="{% static 'images/product-placeholder.jpg' %}" class="deal-image" alt="Skincare Set">
+                        <div class="deal-badge">45% OFF</div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Premium Skincare Set</h5>
+                        <p class="text-muted small">Anti-aging formula, 5-piece collection</p>
+                        <div class="price-section mb-3">
+                            <span class="price-old">$179.99</span>
+                            <span class="price-new">$99.99</span>
+                            <span class="discount-percent">-45%</span>
+                        </div>
+                        <div class="deal-timer">
+                            <div class="timer-unit">
+                                <span class="timer-number">9</span>
+                                <span class="timer-label">H</span>
+                            </div>
+                            <div class="timer-unit">
+                                <span class="timer-number">07</span>
+                                <span class="timer-label">M</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger w-100 mt-3">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deal Card 6 -->
+            <div class="col-lg-4 col-md-6 mb-4" data-category="books">
+                <div class="card deals-card">
+                    <div class="position-relative">
+                        <img src="{% static 'images/product-placeholder.jpg' %}" class="deal-image" alt="Book Collection">
+                        <div class="deal-badge">30% OFF</div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Bestseller Book Bundle</h5>
+                        <p class="text-muted small">10 popular titles, digital + physical</p>
+                        <div class="price-section mb-3">
+                            <span class="price-old">$149.99</span>
+                            <span class="price-new">$104.99</span>
+                            <span class="discount-percent">-30%</span>
+                        </div>
+                        <div class="deal-timer">
+                            <div class="timer-unit">
+                                <span class="timer-number">24</span>
+                                <span class="timer-label">H</span>
+                            </div>
+                            <div class="timer-unit">
+                                <span class="timer-number">00</span>
+                                <span class="timer-label">M</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger w-100 mt-3">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Signup -->
+<section class="py-5">
+    <div class="container">
+        <div class="newsletter-signup">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3 class="mb-2">🔔 Never Miss a Deal!</h3>
+                    <p class="mb-0">Subscribe to get instant notifications about flash sales and exclusive offers.</p>
+                </div>
+                <div class="col-md-4">
+                    <form class="d-flex">
+                        <input type="email" class="form-control me-2" placeholder="Your email address" required>
+                        <button type="submit" class="btn btn-light">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Deal Statistics -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <h3 class="text-primary">{{ total_deals|default:"150+" }}</h3>
+                <p class="text-muted">Active Deals</p>
+            </div>
+            <div class="col-md-3">
+                <h3 class="text-success">{{ total_savings|default:"$50K+" }}</h3>
+                <p class="text-muted">Total Savings</p>
+            </div>
+            <div class="col-md-3">
+                <h3 class="text-warning">{{ happy_customers|default:"2.5K+" }}</h3>
+                <p class="text-muted">Happy Customers</p>
+            </div>
+            <div class="col-md-3">
+                <h3 class="text-info">{{ avg_discount|default:"45%" }}</h3>
+                <p class="text-muted">Average Discount</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Category filtering
+    $('.filter-btn').on('click', function() {
+        $('.filter-btn').removeClass('active');
+        $(this).addClass('active');
+        
+        const category = $(this).data('category');
+        
+        if (category === 'all') {
+            $('.col-lg-4').show();
+        } else {
+            $('.col-lg-4').hide();
+            $(`.col-lg-4[data-category="${category}"]`).show();
+        }
+    });
+    
+    // Countdown timers
+    function updateTimers() {
+        $('.deal-timer').each(function() {
+            const $timer = $(this);
+            const $hours = $timer.find('.timer-number').eq(0);
+            const $minutes = $timer.find('.timer-number').eq(1);
+            const $seconds = $timer.find('.timer-number').eq(2);
+            
+            let hours = parseInt($hours.text());
+            let minutes = parseInt($minutes.text());
+            let seconds = parseInt($seconds.text());
+            
+            // Countdown logic
+            if (seconds > 0) {
+                seconds--;
+            } else if (minutes > 0) {
+                minutes--;
+                seconds = 59;
+            } else if (hours > 0) {
+                hours--;
+                minutes = 59;
+                seconds = 59;
+            }
+            
+            $hours.text(hours.toString().padStart(2, '0'));
+            $minutes.text(minutes.toString().padStart(2, '0'));
+            $seconds.text(seconds.toString().padStart(2, '0'));
+        });
+    }
+    
+    // Update main flash sale timer
+    function updateFlashSaleTimer() {
+        let hours = parseInt($('#hours').text());
+        let minutes = parseInt($('#minutes').text());
+        let seconds = parseInt($('#seconds').text());
+        
+        if (seconds > 0) {
+            seconds--;
+        } else if (minutes > 0) {
+            minutes--;
+            seconds = 59;
+        } else if (hours > 0) {
+            hours--;
+            minutes = 59;
+            seconds = 59;
+        }
+        
+        $('#hours').text(hours);
+        $('#minutes').text(minutes);
+        $('#seconds').text(seconds);
+    }
+    
+    // Start timers
+    setInterval(updateTimers, 1000);
+    setInterval(updateFlashSaleTimer, 1000);
+    
+    // Add to cart functionality
+    $('.btn-danger').on('click', function() {
+        const $btn = $(this);
+        const originalText = $btn.html();
+        
+        $btn.html('<i class="fas fa-spinner fa-spin me-2"></i>Adding...');
+        $btn.prop('disabled', true);
+        
+        // Simulate adding to cart
+        setTimeout(function() {
+            $btn.html('<i class="fas fa-check me-2"></i>Added!');
+            $btn.removeClass('btn-danger').addClass('btn-success');
+            
+            setTimeout(function() {
+                $btn.html(originalText);
+                $btn.removeClass('btn-success').addClass('btn-danger');
+                $btn.prop('disabled', false);
+            }, 2000);
+        }, 1000);
+    });
+    
+    // Newsletter subscription
+    $('form').on('submit', function(e) {
+        e.preventDefault();
+        const $form = $(this);
+        const $input = $form.find('input[type="email"]');
+        const $btn = $form.find('button');
+        
+        if ($input.val().trim() === '') {
+            showToast('Please enter your email address', 'error');
+            return;
+        }
+        
+        $btn.html('Subscribing...');
+        $btn.prop('disabled', true);
+        
+        setTimeout(function() {
+            $btn.html('Subscribed!');
+            $btn.removeClass('btn-light').addClass('btn-success');
+            $input.val('');
+            showToast('Successfully subscribed to deal notifications!', 'success');
+            
+            setTimeout(function() {
+                $btn.html('Subscribe');
+                $btn.removeClass('btn-success').addClass('btn-light');
+                $btn.prop('disabled', false);
+            }, 3000);
+        }, 1500);
+    });
+    
+    // Animate progress bar
+    setTimeout(function() {
+        $('.deal-progress-bar').css('width', '70%');
+    }, 1000);
+});
+
+function showToast(message, type = 'info') {
+    const bgClass = type === 'error' ? 'bg-danger' : (type === 'success' ? 'bg-success' : 'bg-primary');
+    const toast = $(`
+        <div class="toast align-items-center text-white ${bgClass} border-0" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `);
+    
+    $('body').append(toast);
+    const bsToast = new bootstrap.Toast(toast[0]);
+    bsToast.show();
+    
+    toast.on('hidden.bs.toast', function() {
+        $(this).remove();
+    });
+}
+</script>
+{% endblock %}nds 'base.html' %}
 {% block content %}
 <div class="container py-5 text-center">
   <h2>Today’s Deals</h2>

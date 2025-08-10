@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Phone Payment Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .stats-card h3 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    .stats-card p {
+        margin: 5px 0 0;
+        opacity: 0.9;
+    }
+    .transaction-card {
+        border: 1px solid #e3e6f0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        background: white;
+    }
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .status-completed { background: #d4edda; color: #155724; }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-failed { background: #f8d7da; color: #721c24; }
+    .status-processing { background: #d1ecf1; color: #0c5460; }
+    .action-buttons {
+        margin-bottom: 30px;
+    }
+    .phone-number {
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-mobile-alt text-primary"></i> Phone Payment Dashboard
+        </h1>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h3>KES {{ total_sent|floatformat:2 }}</h3>
+                        <p>Total Money Sent</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-paper-plane fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="stats-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h3>KES {{ total_received|floatformat:2 }}</h3>
+                        <p>Total Money Received</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-hand-holding-usd fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <div class="row">
+            <div class="col-md-6">
+                <a href="{% url 'payments:send_money_to_phone' %}" class="btn btn-primary btn-lg btn-block">
+                    <i class="fas fa-paper-plane"></i> Send Money to Phone
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="{% url 'payments:request_payment_from_phone' %}" class="btn btn-success btn-lg btn-block">
+                    <i class="fas fa-mobile-alt"></i> Request Payment from Phone
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Phone Payments -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-list"></i> Recent Phone Payments
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if phone_payments %}
+                        {% for payment in phone_payments %}
+                        <div class="transaction-card">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge badge-{% if payment.payment_type == 'send' %}warning{% else %}success{% endif %} mr-2">
+                                            {{ payment.get_payment_type_display }}
+                                        </span>
+                                        <span class="status-badge status-{{ payment.status }}">
+                                            {{ payment.status }}
+                                        </span>
+                                    </div>
+                                    <p class="mb-1">
+                                        <strong>Phone:</strong> 
+                                        <span class="phone-number">{{ payment.formatted_phone }}</span>
+                                    </p>
+                                    <p class="mb-1">
+                                        <strong>Amount:</strong> KES {{ payment.amount|floatformat:2 }}
+                                    </p>
+                                    <p class="mb-1 text-muted">{{ payment.description }}</p>
+                                    <small class="text-muted">{{ payment.created_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    {% if payment.reference %}
+                                        <p class="mb-1">
+                                            <small><strong>Ref:</strong> {{ payment.reference }}</small>
+                                        </p>
+                                    {% endif %}
+                                    {% if payment.receipt_number %}
+                                        <p class="mb-1">
+                                            <small><strong>Receipt:</strong> {{ payment.receipt_number }}</small>
+                                        </p>
+                                    {% endif %}
+                                    {% if payment.initiated_by %}
+                                        <small class="text-muted">By: {{ payment.initiated_by.get_full_name|default:payment.initiated_by.username }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-mobile-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No phone payments yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Status -->
+        <div class="col-lg-4">
+            <!-- B2C Transactions -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-arrow-right"></i> Outgoing (B2C)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if b2c_transactions %}
+                        {% for transaction in b2c_transactions %}
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                            <div>
+                                <p class="mb-0 phone-number">{{ transaction.formatted_phone }}</p>
+                                <small class="text-muted">KES {{ transaction.amount|floatformat:2 }}</small>
+                            </div>
+                            <span class="status-badge status-{{ transaction.status }}">
+                                {{ transaction.status }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No outgoing transactions</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- C2B Transactions -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-arrow-left"></i> Incoming (C2B)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if c2b_transactions %}
+                        {% for transaction in c2b_transactions %}
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                            <div>
+                                <p class="mb-0 phone-number">{{ transaction.formatted_phone }}</p>
+                                <small class="text-muted">KES {{ transaction.amount|floatformat:2 }}</small>
+                            </div>
+                            <span class="status-badge status-{{ transaction.status }}">
+                                {{ transaction.status }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No incoming transactions</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

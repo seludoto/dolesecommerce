@@ -1,24 +1,335 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
-  <div class="container py-5">
-    <div class="card mx-auto" style="max-width:420px;">
-      <div class="card-body">
-        <h3 class="card-title mb-4 text-center">User Profile</h3>
-        <p><strong>Username:</strong> {{ profile.user.username }}</p>
-        <p><strong>Email:</strong> {{ profile.user.email }}</p>
-        <p><strong>Phone:</strong> {{ profile.phone }}</p>
-        <p><strong>Address:</strong> {{ profile.address }}</p>
-        {% if profile.avatar %}
-          <img src="{{ profile.avatar.url }}" alt="Avatar" width="120" height="120" class="rounded mb-2">
-        {% else %}
-          <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar" width="120" height="120" class="rounded mb-2">
-        {% endif %}
-        <p><strong>Joined:</strong> {{ profile.created_at }}</p>
-        <div class="d-grid gap-2 mt-4">
-          <a href="/users/profile/edit/" class="btn" style="background:#1de9b6; color:#fff; font-weight:600;">Edit Profile</a>
+<div class="container-fluid py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh;">
+  <div class="container">
+    <div class="row">
+      <!-- Profile Header Card -->
+      <div class="col-12 mb-4">
+        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+          <div class="card-body p-0">
+            <!-- Cover Photo Area -->
+            <div class="position-relative" style="height: 200px; background: linear-gradient(45deg, #667eea, #764ba2);">
+              <div class="position-absolute bottom-0 start-0 p-4">
+                <div class="d-flex align-items-end">
+                  <!-- Profile Avatar -->
+                  <div class="position-relative me-4">
+                    {% if profile.avatar %}
+                      <img src="{{ profile.avatar.url }}" alt="Avatar" 
+                           class="rounded-circle border border-white border-4 shadow"
+                           style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                      <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar" 
+                           class="rounded-circle border border-white border-4 shadow"
+                           style="width: 120px; height: 120px; object-fit: cover;">
+                    {% endif %}
+                    {% if profile.is_verified %}
+                      <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-2">
+                        <i class="fas fa-check text-white" style="font-size: 12px;"></i>
+                      </span>
+                    {% endif %}
+                  </div>
+                  
+                  <!-- Profile Info -->
+                  <div class="text-white mb-3">
+                    <h2 class="mb-1 fw-bold">{{ profile.display_name }}</h2>
+                    <p class="mb-0 opacity-75">@{{ profile.user.username }}</p>
+                    {% if profile.bio %}
+                      <p class="mb-0 mt-1 opacity-90">{{ profile.bio|truncatechars:100 }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="position-absolute top-0 end-0 p-3">
+                <div class="dropdown">
+                  <button class="btn btn-light btn-sm rounded-pill dropdown-toggle" 
+                          data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-cog me-1"></i> Settings
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#profileSettings" data-bs-toggle="modal">
+                      <i class="fas fa-user me-2"></i>Edit Profile</a></li>
+                    <li><a class="dropdown-item" href="#securitySettings" data-bs-toggle="modal">
+                      <i class="fas fa-shield-alt me-2"></i>Security</a></li>
+                    <li><a class="dropdown-item" href="#privacySettings" data-bs-toggle="modal">
+                      <i class="fas fa-eye me-2"></i>Privacy</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'users:logout' %}">
+                      <i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Content -->
+      <div class="col-md-8 mb-4">
+        <!-- Profile Details Card -->
+        <div class="card shadow border-0 mb-4" style="border-radius: 15px;">
+          <div class="card-header bg-transparent border-0 pt-4">
+            <h5 class="mb-0"><i class="fas fa-user-circle me-2 text-primary"></i>Profile Information</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label text-muted small fw-bold">FULL NAME</label>
+                <p class="mb-0 fw-semibold">{{ profile.full_name|default:"Not provided" }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label text-muted small fw-bold">EMAIL ADDRESS</label>
+                <p class="mb-0">{{ profile.user.email }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label text-muted small fw-bold">PHONE NUMBER</label>
+                <p class="mb-0">{{ profile.phone|default:"Not provided" }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label text-muted small fw-bold">COUNTRY</label>
+                <p class="mb-0">{{ profile.country|default:"Not specified" }}</p>
+              </div>
+              <div class="col-12 mb-3">
+                <label class="form-label text-muted small fw-bold">ADDRESS</label>
+                <p class="mb-0">{{ profile.address|default:"Not provided" }}</p>
+              </div>
+              {% if profile.website %}
+              <div class="col-12 mb-3">
+                <label class="form-label text-muted small fw-bold">WEBSITE</label>
+                <p class="mb-0"><a href="{{ profile.website }}" target="_blank" class="text-decoration-none">{{ profile.website }}</a></p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Stats Card -->
+        <div class="card shadow border-0" style="border-radius: 15px;">
+          <div class="card-header bg-transparent border-0 pt-4">
+            <h5 class="mb-0"><i class="fas fa-chart-line me-2 text-success"></i>Account Activity</h5>
+          </div>
+          <div class="card-body">
+            <div class="row text-center">
+              <div class="col-4">
+                <div class="p-3">
+                  <h4 class="text-primary mb-1">{{ user.orders.count|default:0 }}</h4>
+                  <small class="text-muted">Orders</small>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="p-3">
+                  <h4 class="text-success mb-1">{{ user.review_set.count|default:0 }}</h4>
+                  <small class="text-muted">Reviews</small>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="p-3">
+                  <h4 class="text-warning mb-1">{{ profile.is_public|yesno:"Public,Private" }}</h4>
+                  <small class="text-muted">Profile</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-md-4">
+        <!-- Quick Actions Card -->
+        <div class="card shadow border-0 mb-4" style="border-radius: 15px;">
+          <div class="card-header bg-transparent border-0 pt-4">
+            <h6 class="mb-0"><i class="fas fa-bolt me-2 text-warning"></i>Quick Actions</h6>
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-2">
+              <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#profileSettings">
+                <i class="fas fa-edit me-2"></i>Edit Profile
+              </button>
+              <a href="{% url 'orders:order_history' %}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-shopping-bag me-2"></i>View Orders
+              </a>
+              <a href="{% url 'reviews:my_reviews' %}" class="btn btn-outline-success btn-sm">
+                <i class="fas fa-star me-2"></i>My Reviews
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account Info Card -->
+        <div class="card shadow border-0" style="border-radius: 15px;">
+          <div class="card-header bg-transparent border-0 pt-4">
+            <h6 class="mb-0"><i class="fas fa-info-circle me-2 text-info"></i>Account Details</h6>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <small class="text-muted d-block">Member Since</small>
+              <strong>{{ profile.created_at|date:"F d, Y" }}</strong>
+            </div>
+            <div class="mb-3">
+              <small class="text-muted d-block">Last Updated</small>
+              <strong>{{ profile.updated_at|date:"M d, Y" }}</strong>
+            </div>
+            <div class="mb-3">
+              <small class="text-muted d-block">Account Status</small>
+              <span class="badge bg-success">Active</span>
+              {% if profile.is_verified %}
+                <span class="badge bg-primary ms-1">Verified</span>
+              {% endif %}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Profile Settings Modal -->
+<div class="modal fade" id="profileSettings" tabindex="-1" aria-labelledby="profileSettingsLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="border-radius: 15px;">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="profileSettingsLabel">
+          <i class="fas fa-user-edit me-2"></i>Edit Profile
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" enctype="multipart/form-data" action="{% url 'users:profile_edit' %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="first_name" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="first_name" name="first_name" 
+                     value="{{ user.first_name }}" style="border-radius: 10px;">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="last_name" class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="last_name" name="last_name" 
+                     value="{{ user.last_name }}" style="border-radius: 10px;">
+            </div>
+            <div class="col-12 mb-3">
+              <label for="email" class="form-label">Email Address</label>
+              <input type="email" class="form-control" id="email" name="email" 
+                     value="{{ user.email }}" style="border-radius: 10px;">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="phone" class="form-label">Phone Number</label>
+              <input type="text" class="form-control" id="phone" name="phone" 
+                     value="{{ profile.phone }}" style="border-radius: 10px;">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="country" class="form-label">Country</label>
+              <input type="text" class="form-control" id="country" name="country" 
+                     value="{{ profile.country }}" style="border-radius: 10px;">
+            </div>
+            <div class="col-12 mb-3">
+              <label for="address" class="form-label">Address</label>
+              <textarea class="form-control" id="address" name="address" rows="3" 
+                        style="border-radius: 10px;">{{ profile.address }}</textarea>
+            </div>
+            <div class="col-12 mb-3">
+              <label for="bio" class="form-label">Bio</label>
+              <textarea class="form-control" id="bio" name="bio" rows="3" 
+                        style="border-radius: 10px;" placeholder="Tell us about yourself...">{{ profile.bio }}</textarea>
+            </div>
+            <div class="col-12 mb-3">
+              <label for="website" class="form-label">Website</label>
+              <input type="url" class="form-control" id="website" name="website" 
+                     value="{{ profile.website }}" style="border-radius: 10px;" placeholder="https://example.com">
+            </div>
+            <div class="col-12 mb-3">
+              <label for="avatar" class="form-label">Profile Picture</label>
+              <input type="file" class="form-control" id="avatar" name="avatar" 
+                     accept="image/*" style="border-radius: 10px;">
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="border-radius: 10px;">
+              <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Privacy Settings Modal -->
+<div class="modal fade" id="privacySettings" tabindex="-1" aria-labelledby="privacySettingsLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="border-radius: 15px;">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="privacySettingsLabel">
+          <i class="fas fa-eye me-2"></i>Privacy Settings
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{% url 'users:privacy_settings' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="is_public" name="is_public" 
+                     {% if profile.is_public %}checked{% endif %}>
+              <label class="form-check-label" for="is_public">
+                <strong>Public Profile</strong><br>
+                <small class="text-muted">Make your profile visible in the user registry</small>
+              </label>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="border-radius: 10px;">
+              <i class="fas fa-save me-2"></i>Save Settings
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Security Settings Modal -->
+<div class="modal fade" id="securitySettings" tabindex="-1" aria-labelledby="securitySettingsLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="border-radius: 15px;">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="securitySettingsLabel">
+          <i class="fas fa-shield-alt me-2"></i>Security Settings
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-grid gap-2">
+          <a href="{% url 'users:change_password' %}" class="btn btn-outline-primary" style="border-radius: 10px;">
+            <i class="fas fa-key me-2"></i>Change Password
+          </a>
+          <button class="btn btn-outline-danger" style="border-radius: 10px;">
+            <i class="fas fa-user-times me-2"></i>Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+.card:hover {
+  transform: translateY(-2px);
+}
+.btn {
+  transition: all 0.2s ease-in-out;
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+</style>
+
 {% endblock %}

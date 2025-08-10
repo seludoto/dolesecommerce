@@ -24,12 +24,18 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('i18n/', include('django.conf.urls.i18n')),
     path('', include('core.urls', namespace='core')),
     path('products/', include('products.urls', namespace='products')),
     path('users/', include('users.urls', namespace='users')),
     path('orders/', include('orders.urls', namespace='orders')),
     path('payments/', include('payments.urls', namespace='payments')),
+    path('cart/', include('cart.urls', namespace='cart')),
+    path('reviews/', include('reviews.urls', namespace='reviews')),
+    path('promotions/', include('promotions.urls', namespace='promotions')),
+    path('stores/', include('stores.urls', namespace='stores')),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])

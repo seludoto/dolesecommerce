@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Methods{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-methods-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .payment-method-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .payment-method-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-color: #007bff;
+    }
+    
+    .payment-method-card.featured {
+        border-color: #7B2CBF;
+        background: linear-gradient(135deg, rgba(123, 44, 191, 0.05), rgba(199, 125, 255, 0.05));
+    }
+    
+    .method-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .pi-icon {
+        background: linear-gradient(135deg, #7B2CBF, #C77DFF);
+        color: white;
+    }
+    
+    .mpesa-icon {
+        background: linear-gradient(135deg, #00a651, #4caf50);
+        color: white;
+    }
+    
+    .card-icon {
+        background: linear-gradient(135deg, #1e88e5, #42a5f5);
+        color: white;
+    }
+    
+    .features-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .features-list li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .features-list li i {
+        color: #28a745;
+        margin-right: 10px;
+        width: 20px;
+    }
+    
+    .badge-new {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #ff6b6b;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .badge-popular {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #ffd93d;
+        color: #333;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .rate-display {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        text-align: center;
+    }
+    
+    .rate-value {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #7B2CBF;
+    }
+    
+    .coming-soon {
+        opacity: 0.6;
+        position: relative;
+    }
+    
+    .coming-soon::after {
+        content: 'Coming Soon';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="payment-methods-container">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">Payment Methods</h1>
+            <p class="lead text-muted">Choose your preferred payment method for a seamless checkout experience</p>
+        </div>
+
+        <div class="row">
+            <!-- Pi Coin Payment -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="payment-method-card featured h-100">
+                    <div class="badge-new">Featured</div>
+                    
+                    <div class="method-icon pi-icon mx-auto">
+                        π
+                    </div>
+                    
+                    <h3 class="text-center mb-3">Pi Coin</h3>
+                    <p class="text-muted text-center mb-4">
+                        Pay with the revolutionary Pi cryptocurrency. Fast, secure, and eco-friendly.
+                    </p>
+                    
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i>Zero transaction fees</li>
+                        <li><i class="fas fa-check"></i>Instant payments</li>
+                        <li><i class="fas fa-check"></i>Eco-friendly blockchain</li>
+                        <li><i class="fas fa-check"></i>Global accessibility</li>
+                        <li><i class="fas fa-check"></i>Secure encryption</li>
+                    </ul>
+                    
+                    <div class="rate-display">
+                        <div class="rate-value">1 π = ${{ pi_rate|floatformat:6 }} USD</div>
+                        <small class="text-muted">Current exchange rate</small>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="#" class="btn btn-primary btn-lg w-100">
+                            <i class="fab fa-bitcoin me-2"></i>
+                            Pay with Pi
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- M-Pesa Payment -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="payment-method-card h-100">
+                    <div class="badge-popular">Popular</div>
+                    
+                    <div class="method-icon mpesa-icon mx-auto">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    
+                    <h3 class="text-center mb-3">M-Pesa</h3>
+                    <p class="text-muted text-center mb-4">
+                        Mobile money payment solution. Widely used and trusted across East Africa.
+                    </p>
+                    
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i>Pay via mobile phone</li>
+                        <li><i class="fas fa-check"></i>Instant confirmation</li>
+                        <li><i class="fas fa-check"></i>No cards required</li>
+                        <li><i class="fas fa-check"></i>Trusted by millions</li>
+                        <li><i class="fas fa-check"></i>24/7 availability</li>
+                    </ul>
+                    
+                    <div class="rate-display">
+                        <div class="rate-value">Standard M-Pesa rates apply</div>
+                        <small class="text-muted">Transaction fees as per Safaricom</small>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="#" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-mobile-alt me-2"></i>
+                            Pay with M-Pesa
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credit/Debit Cards -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="payment-method-card h-100">
+                    <div class="method-icon card-icon mx-auto">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    
+                    <h3 class="text-center mb-3">Credit/Debit Cards</h3>
+                    <p class="text-muted text-center mb-4">
+                        Pay with your Visa, Mastercard, or American Express cards securely.
+                    </p>
+                    
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i>Visa & Mastercard accepted</li>
+                        <li><i class="fas fa-check"></i>SSL encrypted</li>
+                        <li><i class="fas fa-check"></i>PCI compliant</li>
+                        <li><i class="fas fa-check"></i>3D secure authentication</li>
+                        <li><i class="fas fa-check"></i>International cards welcome</li>
+                    </ul>
+                    
+                    <div class="rate-display">
+                        <div class="rate-value">2.9% + $0.30</div>
+                        <small class="text-muted">Per transaction</small>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="#" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-credit-card me-2"></i>
+                            Pay with Card
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Transfer -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="payment-method-card coming-soon h-100">
+                    <div class="method-icon mx-auto" style="background: linear-gradient(135deg, #6c757d, #868e96); color: white;">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    
+                    <h3 class="text-center mb-3">Bank Transfer</h3>
+                    <p class="text-muted text-center mb-4">
+                        Direct bank transfer for large purchases. Secure and reliable.
+                    </p>
+                    
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i>Direct bank transfer</li>
+                        <li><i class="fas fa-check"></i>No additional fees</li>
+                        <li><i class="fas fa-check"></i>High security</li>
+                        <li><i class="fas fa-check"></i>Best for large orders</li>
+                        <li><i class="fas fa-check"></i>Manual verification</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- PayPal -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="payment-method-card coming-soon h-100">
+                    <div class="method-icon mx-auto" style="background: linear-gradient(135deg, #0070ba, #003087); color: white;">
+                        <i class="fab fa-paypal"></i>
+                    </div>
+                    
+                    <h3 class="text-center mb-3">PayPal</h3>
+                    <p class="text-muted text-center mb-4">
+                        Pay with your PayPal account or linked cards. Buyer protection included.
+                    </p>
+                    
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i>PayPal account</li>
+                        <li><i class="fas fa-check"></i>Buyer protection</li>
+                        <li><i class="fas fa-check"></i>Multiple funding sources</li>
+                        <li><i class="fas fa-check"></i>Global acceptance</li>
+                        <li><i class="fas fa-check"></i>Easy refunds</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Cryptocurrency -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="payment-method-card coming-soon h-100">
+                    <div class="method-icon mx-auto" style="background: linear-gradient(135deg, #f7931a, #ffb347); color: white;">
+                        <i class="fab fa-bitcoin"></i>
+                    </div>
+                    
+                    <h3 class="text-center mb-3">Other Cryptocurrencies</h3>
+                    <p class="text-muted text-center mb-4">
+                        Bitcoin, Ethereum, and other major cryptocurrencies support coming soon.
+                    </p>
+                    
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i>Bitcoin (BTC)</li>
+                        <li><i class="fas fa-check"></i>Ethereum (ETH)</li>
+                        <li><i class="fas fa-check"></i>Litecoin (LTC)</li>
+                        <li><i class="fas fa-check"></i>Low fees</li>
+                        <li><i class="fas fa-check"></i>Decentralized</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="bg-light rounded p-4">
+                    <h4 class="mb-3"><i class="fas fa-shield-alt text-primary me-2"></i>Security & Trust</h4>
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <i class="fas fa-lock text-primary mb-2" style="font-size: 2rem;"></i>
+                            <h6>SSL Encrypted</h6>
+                            <p class="small text-muted">All transactions are secured with 256-bit SSL encryption</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <i class="fas fa-shield-alt text-success mb-2" style="font-size: 2rem;"></i>
+                            <h6>PCI Compliant</h6>
+                            <p class="small text-muted">We meet the highest security standards for payment processing</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <i class="fas fa-undo text-info mb-2" style="font-size: 2rem;"></i>
+                            <h6>Easy Refunds</h6>
+                            <p class="small text-muted">Simple refund process for all payment methods</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <i class="fas fa-headset text-warning mb-2" style="font-size: 2rem;"></i>
+                            <h6>24/7 Support</h6>
+                            <p class="small text-muted">Round-the-clock customer support for payment issues</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add click handlers for payment method cards
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentCards = document.querySelectorAll('.payment-method-card:not(.coming-soon)');
+    
+    paymentCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const method = this.querySelector('h3').textContent.trim();
+            console.log('Selected payment method:', method);
+            
+            // You can add navigation logic here
+            // For example: window.location.href = '/checkout/?payment=' + method.toLowerCase();
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,14 +1,429 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pi Coin Payment - Order #{{ order.id }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    .pi-payment-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .pi-logo {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #7B2CBF, #C77DFF);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    
+    .payment-summary {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .amount-display {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #7B2CBF, #C77DFF);
+        color: white;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+    
+    .conversion-rate {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin-top: 10px;
+    }
+    
+    .payment-method-card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .payment-method-card:hover {
+        border-color: #7B2CBF;
+        box-shadow: 0 4px 12px rgba(123, 44, 191, 0.1);
+    }
+    
+    .payment-method-card.selected {
+        border-color: #7B2CBF;
+        background: rgba(123, 44, 191, 0.05);
+    }
+    
+    .wallet-qr {
+        text-align: center;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .qr-code {
+        width: 200px;
+        height: 200px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        margin: 0 auto 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    .wallet-address {
+        font-family: 'Courier New', monospace;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        word-break: break-all;
+        font-size: 14px;
+        border: 1px solid #dee2e6;
+        margin-bottom: 10px;
+    }
+    
+    .copy-button {
+        background: #7B2CBF;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .copy-button:hover {
+        background: #6a1ba8;
+    }
+    
+    .payment-instructions {
+        background: #e7f3ff;
+        border: 1px solid #b8daff;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    
+    .step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+    
+    .step-number {
+        background: #7B2CBF;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .status-check {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 20px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-  <h1>Pay for Order #{{ order.id }} with Pi Coin</h1>
-  <p>Total: ${{ order.items.all|map:'subtotal'|sum }}</p>
-  <form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-      <label for="pi_wallet_address" class="form-label">Your Pi Wallet Address</label>
-      <input type="text" name="pi_wallet_address" id="pi_wallet_address" class="form-control" required placeholder="Enter your Pi wallet address">
+<div class="container mt-4">
+    <div class="pi-payment-container">
+        <!-- Header -->
+        <div class="d-flex align-items-center mb-4">
+            <div class="pi-logo">π</div>
+            <div>
+                <h2 class="mb-1">Pi Coin Payment</h2>
+                <p class="text-muted mb-0">Order #{{ order.id }}</p>
+            </div>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="payment-summary">
+            <h5><i class="fas fa-shopping-cart text-primary me-2"></i>Order Summary</h5>
+            <div class="row">
+                <div class="col-md-8">
+                    {% for item in order.items.all %}
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span>{{ item.product.name }} (x{{ item.quantity }})</span>
+                        <span>${{ item.price|floatformat:2 }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="amount-display">
+                <h3 class="mb-0">${{ usd_amount|floatformat:2 }} USD</h3>
+                <h2 class="mb-0">≈ {{ pi_amount|floatformat:7 }} π</h2>
+                <div class="conversion-rate">
+                    Current rate: 1 π = ${{ current_rate|floatformat:6 }} USD
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="payment-method-card" id="api-method" onclick="selectPaymentMethod('api')">
+                    <div class="d-flex align-items-center">
+                        <i class="fab fa-bitcoin text-warning me-3" style="font-size: 2rem;"></i>
+                        <div>
+                            <h5 class="mb-1">Pi Network API</h5>
+                            <p class="text-muted mb-0">Automatic payment through Pi app</p>
+                            {% if not pi_api_enabled %}
+                            <small class="text-danger">Not available</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="payment-method-card selected" id="manual-method" onclick="selectPaymentMethod('manual')">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-hand-holding-usd text-success me-3" style="font-size: 2rem;"></i>
+                        <div>
+                            <h5 class="mb-1">Manual Transfer</h5>
+                            <p class="text-muted mb-0">Send Pi to our wallet manually</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Payment Form -->
+        {% if pi_api_enabled %}
+        <div id="api-payment-form" style="display: none;">
+            <div class="payment-instructions">
+                <h5><i class="fas fa-mobile-alt text-primary me-2"></i>Pi Network API Payment</h5>
+                <p>Click the button below to initiate payment through the Pi Network API. You will be redirected to complete the payment in your Pi app.</p>
+                
+                <form method="post" id="apiPaymentForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_type" value="api">
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fab fa-bitcoin me-2"></i>
+                            Pay {{ pi_amount|floatformat:7 }} π via Pi Network
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Manual Payment Form -->
+        <div id="manual-payment-form">
+            <div class="payment-instructions">
+                <h5><i class="fas fa-info-circle text-primary me-2"></i>Payment Instructions</h5>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>
+                        <strong>Open your Pi Wallet</strong><br>
+                        Launch the Pi Network app on your mobile device and navigate to your wallet.
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>
+                        <strong>Send {{ pi_amount|floatformat:7 }} π</strong><br>
+                        Send exactly <strong>{{ pi_amount|floatformat:7 }} π</strong> to our wallet address below.
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>
+                        <strong>Include memo</strong><br>
+                        Add "Order #{{ order.id }}" as the transaction memo.
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div>
+                        <strong>Provide your wallet address</strong><br>
+                        Enter your Pi wallet address below for verification.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallet Information -->
+            <div class="wallet-qr">
+                <h6>Our Pi Wallet Address</h6>
+                <div class="qr-code">
+                    <i class="fas fa-qrcode" style="font-size: 48px;"></i><br>
+                    QR Code for<br>{{ pi_wallet_address }}
+                </div>
+                
+                <div class="wallet-address" id="walletAddress">{{ pi_wallet_address }}</div>
+                <button class="copy-button" onclick="copyWalletAddress()">
+                    <i class="fas fa-copy me-1"></i>Copy Address
+                </button>
+            </div>
+
+            <!-- Manual Payment Form -->
+            <form method="post" class="mt-4" id="manualPaymentForm">
+                {% csrf_token %}
+                <input type="hidden" name="payment_type" value="manual">
+                
+                <div class="mb-3">
+                    <label for="pi_wallet_address" class="form-label">
+                        <i class="fas fa-wallet me-1"></i>Your Pi Wallet Address *
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="pi_wallet_address" 
+                           name="pi_wallet_address" 
+                           placeholder="Enter your Pi wallet address for verification"
+                           required>
+                    <div class="form-text">This helps us verify the payment came from you.</div>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        Confirm Pi Payment Request
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Payment Status Check -->
+        <div class="status-check">
+            <p><i class="fas fa-clock text-warning me-2"></i>
+            After sending the payment, it may take a few minutes to be confirmed. 
+            You can check your order status in your account dashboard.</p>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Processing...</span>
+            </div>
+            <p class="mt-2">Processing your payment...</p>
+        </div>
     </div>
-    <button type="submit" class="btn btn-warning">Pay with Pi Coin</button>
-  </form>
-  <p>After submitting, please transfer the equivalent Pi to our wallet. Your order will be confirmed after verification.</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedMethod = 'manual';
+
+function selectPaymentMethod(method) {
+    selectedMethod = method;
+    
+    // Update UI
+    document.getElementById('api-method').classList.remove('selected');
+    document.getElementById('manual-method').classList.remove('selected');
+    document.getElementById(method + '-method').classList.add('selected');
+    
+    // Show/hide forms
+    const apiForm = document.getElementById('api-payment-form');
+    const manualForm = document.getElementById('manual-payment-form');
+    
+    if (method === 'api' && apiForm) {
+        apiForm.style.display = 'block';
+        manualForm.style.display = 'none';
+    } else {
+        if (apiForm) apiForm.style.display = 'none';
+        manualForm.style.display = 'block';
+    }
+}
+
+function copyWalletAddress() {
+    const walletAddress = document.getElementById('walletAddress').textContent;
+    navigator.clipboard.writeText(walletAddress).then(function() {
+        // Change button text temporarily
+        const button = event.target.closest('.copy-button');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+        button.style.background = '#28a745';
+        
+        setTimeout(function() {
+            button.innerHTML = originalText;
+            button.style.background = '#7B2CBF';
+        }, 2000);
+    });
+}
+
+// Form submission handlers
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.display = 'block';
+            }
+            
+            // Disable submit button to prevent double submission
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            }
+        });
+    });
+});
+
+// Auto-check payment status for API payments
+if (window.location.search.includes('check_status=true')) {
+    setInterval(function() {
+        fetch('/payments/pi/status/' + window.paymentId + '/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'completed') {
+                window.location.href = '/orders/' + window.orderId + '/';
+            }
+        })
+        .catch(error => console.log('Status check error:', error));
+    }, 5000); // Check every 5 seconds
+}
+</script>
 {% endblock %}

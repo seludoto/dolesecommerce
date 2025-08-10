@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Apply for Store - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Apply to Become a Seller</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Store Name</label>
+                                {{ form.store_name }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Store Description</label>
+                                {{ form.store_description }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Business Type</label>
+                                {{ form.business_type }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Contact Email</label>
+                                {{ form.contact_email }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Contact Phone</label>
+                                {{ form.contact_phone }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Business License (Optional)</label>
+                                {{ form.business_license }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Business Address</label>
+                                {{ form.business_address }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tax ID (Optional)</label>
+                                {{ form.tax_id }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">License Document (Optional)</label>
+                                {{ form.license_document }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Tax Document (Optional)</label>
+                                {{ form.tax_document }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Identity Document (Optional)</label>
+                                {{ form.identity_document }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check">
+                                    {{ form.terms_accepted }}
+                                    <label class="form-check-label" for="{{ form.terms_accepted.id_for_label }}">
+                                        {{ form.terms_accepted.label }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Submit Application</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
