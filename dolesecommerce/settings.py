@@ -14,12 +14,6 @@ MPESA_SECURITY_CREDENTIAL = ''  # Set your B2C security credential (encrypted pa
 # --- Site URL for callbacks ---
 SITE_URL = 'https://your-domain.com'  # Update with your actual domain
 
-# --- Pi Network Payment Settings ---
-PI_NETWORK_API_KEY = ''  # Set your Pi Network API key
-PI_WALLET_ADDRESS = 'GDQRPILGB4NXFIXJ6KLQZ5YJBM6JYH7W3MQNQZ5YJBM6JYH7W3MQ'  # Your Pi wallet address
-PI_SANDBOX_MODE = True  # Set to False for production
-PI_WEBHOOK_SECRET = 'your_webhook_secret_here'  # Secret for webhook verification
-PI_DEFAULT_RATE = 0.314159  # Default Pi to USD rate
 """
 Django settings for dolesecommerce project.
 
@@ -254,7 +248,6 @@ CURRENCIES = [
     ('EUR', 'Euro'),
     ('GBP', 'British Pound'),
     ('KES', 'Kenyan Shilling'),
-    ('PI', 'Pi Coin'),
 ]
 DEFAULT_CURRENCY = 'TZS'
 

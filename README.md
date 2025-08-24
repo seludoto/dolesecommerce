@@ -6,14 +6,9 @@
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.0-purple.svg)](https://getbootstrap.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A comprehensive modern e-commerce platform built with Django, featuring advanced payment systems including **Pi Coin cryptocurrency** and **M-Pesa mobile money** integration, along with traditional e-commerce functionality.
+A comprehensive modern e-commerce platform built with Django, featuring advanced payment systems including **M-Pesa mobile money** integration, along with traditional e-commerce functionality.
 
 ## ✨ Key Features
-
-### 🪙 **Cryptocurrency Payments**
-- **Pi Coin Integration**: Full Pi Network payment support with real-time exchange rates
-- **Secure Processing**: Advanced cryptocurrency transaction handling
-- **Rate Management**: Dynamic Pi to USD exchange rate system
 
 ### 📱 **Mobile Money (M-Pesa)**
 - **Send Money (B2C)**: Direct transfers to any M-Pesa phone number
@@ -77,7 +72,7 @@ A comprehensive modern e-commerce platform built with Django, featuring advanced
    cp .env.example .env
    
    # Edit .env with your settings
-   # Add your M-Pesa and Pi Network credentials
+   # Add your M-Pesa credentials
    ```
 
 5. **Setup Database**
@@ -104,15 +99,6 @@ A comprehensive modern e-commerce platform built with Django, featuring advanced
 
 ### Payment System Setup
 
-#### Pi Coin Configuration
-```python
-# In settings.py or .env
-PI_NETWORK_API_KEY = 'your_pi_api_key'
-PI_WALLET_ADDRESS = 'your_pi_wallet_address'
-PI_SANDBOX_MODE = True  # False for production
-PI_WEBHOOK_SECRET = 'your_webhook_secret'
-```
-
 #### M-Pesa Configuration
 ```python
 # In settings.py or .env
@@ -132,16 +118,6 @@ MPESA_SECURITY_CREDENTIAL = 'your_security_credential'
 - **[Deployment Guide](#)** - Production deployment instructions
 
 ## 🎯 Usage Examples
-
-### Making a Pi Coin Payment
-```javascript
-// Frontend Pi Payment
-Pi.createPayment({
-  amount: 3.14159,
-  memo: "Order #1234",
-  metadata: { orderId: 1234 }
-});
-```
 
 ### Sending Money via M-Pesa
 ```python
@@ -164,7 +140,6 @@ dolesecommerce/
 ├── 📁 orders/               # Order processing
 ├── 📁 payments/             # Payment systems
 │   ├── 📄 mpesa.py         # M-Pesa integration
-│   ├── 📄 pi_network.py    # Pi Network integration
 │   └── 📄 models.py        # Payment models
 ├── 📁 users/                # User management
 ├── 📁 reviews/              # Product reviews
@@ -182,7 +157,7 @@ dolesecommerce/
 - **Backend**: Django 5.2.4, Python 3.13.5
 - **Frontend**: Bootstrap 5.3.0, JavaScript
 - **Database**: SQLite (development), PostgreSQL (production)
-- **Payments**: Pi Network API, M-Pesa Daraja API
+- **Payments**: M-Pesa Daraja API
 - **Deployment**: Heroku-ready with Procfile
 
 ## 🔧 Development
@@ -216,7 +191,6 @@ python manage.py flush
 ## 📱 API Endpoints
 
 ### Payment APIs
-- `POST /payments/pay/pi/<order_id>/` - Pi Coin payment
 - `POST /payments/phone/send/` - Send money to phone
 - `POST /payments/phone/request/` - Request payment via STK Push
 - `GET /payments/phone/dashboard/` - Payment dashboard
@@ -277,7 +251,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🏆 Acknowledgments
 
 - [Django](https://www.djangoproject.com/) - The web framework for perfectionists with deadlines
-- [Pi Network](https://minepi.com/) - Making cryptocurrency accessible to everyone
 - [Safaricom](https://www.safaricom.co.ke/) - M-Pesa mobile money platform
 - [Bootstrap](https://getbootstrap.com/) - Build fast, responsive sites
 
@@ -287,7 +260,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Models**: 15+
 - **Views**: 50+
 - **Templates**: 30+
-- **Payment Methods**: 4 (Pi Coin, M-Pesa, Credit Card, Bank Transfer)
+- **Payment Methods**: 3 (M-Pesa, Credit Card, Bank Transfer)
 
 ---
 

@@ -10,7 +10,6 @@ class Payment(models.Model):
         ('debit_card', 'Debit Card'),
         ('paypal', 'PayPal'),
         ('mpesa', 'M-Pesa'),
-        ('pi_coin', 'Pi Coin'),
         ('bank_transfer', 'Bank Transfer'),
         ('crypto', 'Cryptocurrency'),
     ]
@@ -32,14 +31,6 @@ class Payment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    # Pi Coin specific fields
-    pi_payment_id = models.CharField(max_length=100, blank=True, help_text="Pi Network payment ID")
-    pi_wallet_address = models.CharField(max_length=200, blank=True, help_text="Pi wallet address")
-    pi_amount = models.DecimalField(max_digits=15, decimal_places=7, null=True, blank=True, help_text="Amount in Pi")
-    pi_txid = models.CharField(max_length=100, blank=True, help_text="Pi blockchain transaction ID")
-    pi_status = models.CharField(max_length=20, blank=True, help_text="Pi payment status")
-    pi_exchange_rate = models.DecimalField(max_digits=10, decimal_places=6, null=True, blank=True, help_text="Pi to USD rate")
-    
     # Additional metadata
     gateway_response = models.TextField(blank=True, help_text="Raw gateway response")
     failure_reason = models.TextField(blank=True)
@@ -49,22 +40,11 @@ class Payment(models.Model):
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['payment_method', 'status']),
-            models.Index(fields=['pi_payment_id']),
             models.Index(fields=['created_at']),
         ]
 
     def __str__(self):
         return f"Payment for Order #{self.order.id} - {self.status}"
-    
-    @property
-    def is_pi_payment(self):
-        return self.payment_method == 'pi_coin'
-    
-    @property
-    def pi_amount_display(self):
-        if self.pi_amount:
-            return f"{self.pi_amount:.7f} π"
-        return "N/A"
     
     def get_gateway_response_data(self):
         if self.gateway_response:
@@ -76,66 +56,6 @@ class Payment(models.Model):
     
     def set_gateway_response_data(self, data):
         self.gateway_response = json.dumps(data, indent=2)
-
-
-class PiCoinRate(models.Model):
-    """Pi Coin exchange rates"""
-    pi_to_usd = models.DecimalField(max_digits=10, decimal_places=6, help_text="Pi to USD exchange rate")
-    source = models.CharField(max_length=50, help_text="Rate source (e.g., 'manual', 'api')")
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
-    
-    class Meta:
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return f"1 π = ${self.pi_to_usd} USD ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
-    
-    @classmethod
-    def get_current_rate(cls):
-        """Get the current active Pi to USD rate"""
-        try:
-            rate = cls.objects.filter(is_active=True).first()
-            return rate.pi_to_usd if rate else Decimal('0.314159')  # Default Pi rate
-        except:
-            # If table doesn't exist or other error, return default
-            return Decimal('0.314159')
-    
-    @classmethod
-    def convert_usd_to_pi(cls, usd_amount):
-        """Convert USD amount to Pi"""
-        rate = cls.get_current_rate()
-        if rate > 0:
-            return Decimal(str(usd_amount)) / rate
-        return Decimal('0')
-    
-    @classmethod
-    def convert_pi_to_usd(cls, pi_amount):
-        """Convert Pi amount to USD"""
-        rate = cls.get_current_rate()
-        return Decimal(str(pi_amount)) * rate
-
-
-class PiPaymentTransaction(models.Model):
-    """Track Pi payment transactions"""
-    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, related_name='pi_transactions')
-    pi_payment_id = models.CharField(max_length=100, unique=True)
-    amount_pi = models.DecimalField(max_digits=15, decimal_places=7)
-    amount_usd = models.DecimalField(max_digits=10, decimal_places=2)
-    from_address = models.CharField(max_length=200, blank=True)
-    to_address = models.CharField(max_length=200, blank=True)
-    memo = models.TextField(blank=True)
-    transaction_id = models.CharField(max_length=100, blank=True)
-    status = models.CharField(max_length=20, default='pending')
-    network_fee = models.DecimalField(max_digits=10, decimal_places=7, default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
-    
-    class Meta:
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return f"Pi Transaction {self.pi_payment_id} - {self.amount_pi}π"
 
 
 class MpesaB2CTransaction(models.Model):

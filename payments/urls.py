@@ -9,11 +9,6 @@ urlpatterns = [
     path('history/', views.payment_history, name='payment_history'),
     path('methods/', views.payment_methods, name='payment_methods'),
     
-    # Pi Coin payment URLs
-    path('pay/pi/<int:order_id>/', views.pay_order_pi, name='pay_order_pi'),
-    path('pi/callback/', views.pi_payment_callback, name='pi_payment_callback'),
-    path('pi/status/<int:payment_id>/', views.check_pi_payment_status, name='check_pi_payment_status'),
-    
     # M-Pesa payment URLs
     path('mpesa-callback/', views.mpesa_callback, name='mpesa_callback'),
     
@@ -28,6 +23,4 @@ urlpatterns = [
     
     # Admin payment management URLs
     path('admin/list/', views.admin_payment_list, name='admin_payment_list'),
-    path('admin/confirm-pi/<int:payment_id>/', views.confirm_pi_payment, name='confirm_pi_payment'),
-    path('admin/pi-rates/', views.pi_rate_management, name='pi_rate_management'),
 ]
