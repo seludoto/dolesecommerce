@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from .models import (
-    Payment, PiCoinRate, PiPaymentTransaction, 
+    Payment, 
     MpesaB2CTransaction, MpesaC2BTransaction, PhonePayment
 )
 
@@ -11,16 +11,14 @@ from .models import (
 class PaymentAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'order_link', 'amount', 'payment_method', 'status', 
-        'pi_amount_display', 'created_at', 'payment_actions'
+        'created_at'
     ]
-    list_filter = ['payment_method', 'status', 'pi_status', 'created_at']
+    list_filter = ['payment_method', 'status', 'created_at']
     search_fields = [
-        'order__id', 'payment_id', 'pi_payment_id', 
-        'pi_wallet_address', 'order__user__username'
+        'order__id', 'payment_id', 'order__user__username'
     ]
     readonly_fields = [
-        'created_at', 'updated_at', 'gateway_response_display', 
-        'pi_amount_display'
+        'created_at', 'updated_at', 'gateway_response_display'
     ]
     fieldsets = (
         ('Basic Information', {
@@ -28,13 +26,6 @@ class PaymentAdmin(admin.ModelAdmin):
         }),
         ('Payment Details', {
             'fields': ('payment_id', 'failure_reason', 'processed_by')
-        }),
-        ('Pi Coin Details', {
-            'fields': (
-                'pi_payment_id', 'pi_wallet_address', 'pi_amount', 
-                'pi_txid', 'pi_status', 'pi_exchange_rate'
-            ),
-            'classes': ('collapse',)
         }),
         ('System Information', {
             'fields': ('gateway_response_display', 'created_at', 'updated_at'),
@@ -47,12 +38,6 @@ class PaymentAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">{}</a>', url, f'Order #{obj.order.id}')
     order_link.short_description = 'Order'
     
-    def pi_amount_display(self, obj):
-        if obj.pi_amount:
-            return f"{obj.pi_amount:.7f} π"
-        return "-"
-    pi_amount_display.short_description = 'Pi Amount'
-    
     def gateway_response_display(self, obj):
         if obj.gateway_response:
             return format_html(
@@ -62,125 +47,8 @@ class PaymentAdmin(admin.ModelAdmin):
         return "No response data"
     gateway_response_display.short_description = 'Gateway Response'
     
-    def payment_actions(self, obj):
-        actions = []
-        
-        if obj.is_pi_payment and obj.status == 'pending':
-            confirm_url = reverse('payments:confirm_pi_payment', args=[obj.id])
-            actions.append(f'<a href="{confirm_url}" class="button">Confirm Pi Payment</a>')
-        
-        return mark_safe(' '.join(actions))
-    payment_actions.short_description = 'Actions'
-    
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('order', 'processed_by')
-
-
-@admin.register(PiCoinRate)
-class PiCoinRateAdmin(admin.ModelAdmin):
-    list_display = [
-        'created_at', 'pi_to_usd_display', 'source', 'is_active', 
-        'change_from_previous', 'usage_count'
-    ]
-    list_filter = ['source', 'is_active', 'created_at']
-    search_fields = ['source']
-    readonly_fields = ['created_at', 'change_from_previous', 'usage_count']
-    ordering = ['-created_at']
-    
-    fieldsets = (
-        ('Rate Information', {
-            'fields': ('pi_to_usd', 'source', 'is_active')
-        }),
-        ('Statistics', {
-            'fields': ('created_at', 'change_from_previous', 'usage_count'),
-            'classes': ('collapse',)
-        })
-    )
-    
-    def pi_to_usd_display(self, obj):
-        return f"${obj.pi_to_usd:.6f}"
-    pi_to_usd_display.short_description = 'Pi to USD Rate'
-    pi_to_usd_display.admin_order_field = 'pi_to_usd'
-    
-    def change_from_previous(self, obj):
-        # Get the previous rate
-        previous = PiCoinRate.objects.filter(
-            created_at__lt=obj.created_at
-        ).order_by('-created_at').first()
-        
-        if previous:
-            change = obj.pi_to_usd - previous.pi_to_usd
-            if change > 0:
-                return format_html(
-                    '<span style="color: green;">+${:.6f}</span>', 
-                    change
-                )
-            elif change < 0:
-                return format_html(
-                    '<span style="color: red;">${:.6f}</span>', 
-                    change
-                )
-            else:
-                return "No change"
-        return "First rate"
-    change_from_previous.short_description = 'Change'
-    
-    def usage_count(self, obj):
-        # Count payments using this rate
-        count = Payment.objects.filter(pi_exchange_rate=obj.pi_to_usd).count()
-        return f"{count} payments"
-    usage_count.short_description = 'Usage'
-    
-    def save_model(self, request, obj, form, change):
-        if obj.is_active:
-            # Deactivate other rates when setting this one as active
-            PiCoinRate.objects.filter(is_active=True).update(is_active=False)
-        super().save_model(request, obj, form, change)
-
-
-@admin.register(PiPaymentTransaction)
-class PiPaymentTransactionAdmin(admin.ModelAdmin):
-    list_display = [
-        'pi_payment_id', 'payment_link', 'amount_pi_display', 
-        'amount_usd', 'status', 'created_at', 'completed_at'
-    ]
-    list_filter = ['status', 'created_at', 'completed_at']
-    search_fields = [
-        'pi_payment_id', 'transaction_id', 'from_address', 
-        'to_address', 'payment__order__id'
-    ]
-    readonly_fields = ['created_at']
-    ordering = ['-created_at']
-    
-    fieldsets = (
-        ('Transaction Details', {
-            'fields': (
-                'payment', 'pi_payment_id', 'transaction_id', 
-                'amount_pi', 'amount_usd', 'status'
-            )
-        }),
-        ('Addresses', {
-            'fields': ('from_address', 'to_address'),
-            'classes': ('collapse',)
-        }),
-        ('Additional Information', {
-            'fields': ('memo', 'network_fee', 'created_at', 'completed_at'),
-            'classes': ('collapse',)
-        })
-    )
-    
-    def payment_link(self, obj):
-        url = reverse('admin:payments_payment_change', args=[obj.payment.id])
-        return format_html('<a href="{}">{}</a>', url, f'Payment #{obj.payment.id}')
-    payment_link.short_description = 'Payment'
-    
-    def amount_pi_display(self, obj):
-        return f"{obj.amount_pi:.7f} π"
-    amount_pi_display.short_description = 'Pi Amount'
-    amount_pi_display.admin_order_field = 'amount_pi'
-    
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('payment')
 
 
 # Custom admin site configuration

@@ -65,7 +65,6 @@ class Product(models.Model):
         ('USD', 'US Dollar'),
         ('EUR', 'Euro'),
         ('KES', 'Kenyan Shilling'),
-        ('PI', 'Pi Coin'),
     ]
     
     # Store ownership (multi-vendor support)
