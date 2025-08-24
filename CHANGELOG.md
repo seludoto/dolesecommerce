@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎉 Major Features Added
 
-#### 🪙 Pi Coin Cryptocurrency Payment System
-- **Complete Pi Network Integration**: Full support for Pi cryptocurrency payments
+#### 📱 M-Pesa Mobile Money Payment System
+- **Complete M-Pesa Integration**: Full support for mobile money payments
 - **Real-time Exchange Rates**: Dynamic Pi to USD conversion with admin management
 - **Pi Payment Models**: New `PiCoinRate` and `PiPaymentTransaction` models
 - **Admin Interface**: Comprehensive Pi payment management dashboard

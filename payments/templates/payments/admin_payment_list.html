@@ -104,8 +104,8 @@
                 <div class="stat-label">Total Payments</div>
             </div>
             <div class="stat-card pi-payments">
-                <div class="stat-value">{{ pi_payments.count }}</div>
-                <div class="stat-label">Pi Payments</div>
+                <div class="stat-value">0</div>
+                <div class="stat-label">Payments</div>
             </div>
         </div>
 
@@ -140,11 +140,7 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if payment.payment_method == 'pi_coin' %}
-                                    <span class="payment-method-badge method-pi">
-                                        <i class="fab fa-bitcoin me-1"></i>Pi Coin
-                                    </span>
-                                {% elif payment.payment_method == 'mpesa' %}
+                                {% if payment.payment_method == 'mpesa' %}
                                     <span class="payment-method-badge method-mpesa">
                                         <i class="fas fa-mobile-alt me-1"></i>M-Pesa
                                     </span>
@@ -163,12 +159,7 @@
                             </td>
                             <td>{{ payment.created_at|date:"M d, Y H:i" }}</td>
                             <td>
-                                {% if payment.payment_method == 'pi_coin' and payment.status != 'completed' %}
-                                    <a href="{% url 'payments:confirm_pi_payment' payment.pk %}" 
-                                       class="btn btn-sm btn-success">
-                                        <i class="fas fa-check me-1"></i>Confirm Pi
-                                    </a>
-                                {% endif %}
+                                <!-- No specific actions needed -->
                             </td>
                         </tr>
                         {% empty %}

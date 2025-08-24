@@ -248,7 +248,6 @@ CURRENCIES = [
     ('EUR', 'Euro'),
     ('GBP', 'British Pound'),
     ('KES', 'Kenyan Shilling'),
-    ('PI', 'Pi Coin'),
 ]
 DEFAULT_CURRENCY = 'TZS'
 

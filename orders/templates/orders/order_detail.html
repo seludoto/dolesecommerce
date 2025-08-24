@@ -12,7 +12,7 @@
   </ul>
   {% if not order.is_paid %}
     <a href="{% url 'payments:pay_order' order.pk %}" class="btn btn-success">Pay with M-Pesa</a>
-    <a href="{% url 'payments:pay_order_pi' order.pk %}" class="btn btn-warning">Pay with Pi Coin</a>
+
   {% endif %}
   <a href="{% url 'orders:order_list' %}">Back to orders</a>
 {% endblock %}

@@ -59,7 +59,7 @@
 # dolesecommerce Django Project Documentation
 
 ## Overview
-This is a comprehensive modern e-commerce web application built with Django 5.2.4. It features advanced payment systems including cryptocurrency (Pi Coin) and mobile money (M-Pesa) integration, along with traditional e-commerce functionality. The platform supports product management, user authentication, advanced payment processing, order management, reviews, shipping, and customer support features. The UI is styled with Bootstrap 5 and includes a professional dark navigation bar, logo, and modern responsive forms.
+This is a comprehensive modern e-commerce web application built with Django 5.2.4. It features advanced payment systems including mobile money (M-Pesa) integration, along with traditional e-commerce functionality. The platform supports product management, user authentication, advanced payment processing, order management, reviews, shipping, and customer support features. The UI is styled with Bootstrap 5 and includes a professional dark navigation bar, logo, and modern responsive forms.
 
 ## Key Features
 
@@ -77,7 +77,7 @@ This is a comprehensive modern e-commerce web application built with Django 5.2.
 - User authentication and authorization
 
 ### 💳 **Advanced Payment Systems**
-- **Pi Coin Cryptocurrency Payments**: Full Pi Network integration with real-time exchange rates
+- **Mobile Money Payments**: M-Pesa integration with real-time processing
 - **M-Pesa Mobile Money**: STK Push and direct phone number payments (B2C/C2B)
 - **Traditional Payments**: Credit card and bank transfer support
 - Real-time payment processing and status tracking
